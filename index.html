@@ -16,7 +16,6 @@ body {
   align-items: center;
   justify-content: center;
   font-family: Arial, sans-serif;
-  overflow: hidden;
   background: #000;
 }
 
@@ -60,22 +59,9 @@ body {
 }
 
 .radio { opacity: 0.8; }
-
-.artista {
-  font-size: 18px;
-  margin-top: 10px;
-}
-
-.musica {
-  font-size: 24px;
-  font-weight: bold;
-  margin: 5px 0;
-}
-
-.ouvintes {
-  margin-top: 10px;
-  font-size: 14px;
-}
+.artista { font-size: 18px; margin-top: 10px; }
+.musica { font-size: 24px; font-weight: bold; }
+.ouvintes { margin-top: 10px; }
 
 /* BOTÃO */
 .play-btn {
@@ -90,11 +76,6 @@ body {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: 0.4s;
-}
-
-.play-btn:hover {
-  transform: scale(1.1);
 }
 
 .icon {
@@ -138,11 +119,9 @@ body {
 
   <div class="content">
     <div class="radio" id="radio">Carregando...</div>
-
     <div class="artista" id="artista">---</div>
     <div class="musica" id="musica">---</div>
-
-    <div class="ouvintes" id="ouvintes">👥 0 ouvintes</div>
+    <div class="ouvintes" id="ouvintes">👥 0</div>
 
     <div class="play-btn" onclick="togglePlay()" id="btn">
       <div class="icon"></div>
@@ -158,61 +137,74 @@ body {
 let audio = document.getElementById("audio");
 let btn = document.getElementById("btn");
 
-// controle real
 audio.onplay = () => btn.classList.add("playing");
 audio.onpause = () => btn.classList.remove("playing");
 
 function togglePlay() {
-  if (audio.paused) {
-    audio.play().catch(() => {
-      alert("Clique novamente para iniciar o áudio 🔊");
-    });
-  } else {
-    audio.pause();
-  }
+  audio.paused ? audio.play() : audio.pause();
 }
 
-// separar artista melhor
+// separar artista
 function separarMusica(texto) {
   if (!texto) return { artista: "Desconhecido", musica: "Sem dados" };
-
-  let partes = texto.split(" - ");
-  if (partes.length >= 2) {
-    return { artista: partes[0], musica: partes.slice(1).join(" - ") };
-  }
-
-  return { artista: "Ao vivo", musica: texto };
+  let p = texto.split(" - ");
+  return p.length >= 2 
+    ? { artista: p[0], musica: p.slice(1).join(" - ") }
+    : { artista: "Ao vivo", musica: texto };
 }
 
-// API segura
-function carregarDados() {
+// 👉 JSON principal
+function carregarJSON() {
   $.getJSON(
     "https://api.allorigins.win/raw?url=https://igng.com.br/api-json/VG5wQmVFOUJQVDA9KzM=",
     function(data) {
-
-      if (!data) return;
-
-      let info = separarMusica(data.musica_atual);
-
-      $("#radio").text(data.titulo || "Rádio Online");
-      $("#artista").text(info.artista);
-      $("#musica").text(info.musica);
-      $("#ouvintes").text("👥 " + (data.ouvintes_conectados || 0) + " ouvintes");
-
-      if (data.capa_musica) {
-        $("#capa").css("background-image", "url(" + data.capa_musica + ")");
-        $("#bg").css("background-image", "url(" + data.capa_musica + ")");
-      }
-
+      atualizarPlayer(data);
     }
   ).fail(function() {
-    console.log("Erro ao carregar API");
+    console.log("JSON falhou → usando XML");
+    carregarXML();
   });
 }
 
-// atualizar
-setInterval(carregarDados, 10000);
-carregarDados();
+// 👉 XML fallback
+function carregarXML() {
+  fetch("https://api.allorigins.win/raw?url=https://igng.com.br/api/NzAxOCsx")
+    .then(r => r.text())
+    .then(str => {
+      let xml = new DOMParser().parseFromString(str, "text/xml");
+
+      let data = {
+        titulo: xml.querySelector("titulo")?.textContent,
+        musica_atual: xml.querySelector("musica_atual")?.textContent,
+        ouvintes_conectados: xml.querySelector("ouvintes_conectados")?.textContent,
+        capa_musica: xml.querySelector("capa_musica")?.textContent
+      };
+
+      atualizarPlayer(data);
+    })
+    .catch(() => console.log("XML também falhou"));
+}
+
+// atualizar UI
+function atualizarPlayer(data) {
+  if (!data) return;
+
+  let info = separarMusica(data.musica_atual);
+
+  $("#radio").text(data.titulo || "Rádio");
+  $("#artista").text(info.artista);
+  $("#musica").text(info.musica);
+  $("#ouvintes").text("👥 " + (data.ouvintes_conectados || 0));
+
+  if (data.capa_musica) {
+    $("#capa").css("background-image", "url(" + data.capa_musica + ")");
+    $("#bg").css("background-image", "url(" + data.capa_musica + ")");
+  }
+}
+
+// loop
+setInterval(carregarJSON, 10000);
+carregarJSON();
 
 </script>
 
