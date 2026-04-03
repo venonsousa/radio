@@ -6,7 +6,6 @@
 
 <title>Player Rádio ULTRA MASTER</title>
 
-<!-- Ícones -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
@@ -60,10 +59,7 @@ body {
 }
 
 /* RELÓGIO */
-.relogio {
-  font-size: 14px;
-  opacity: 0.8;
-}
+.relogio { font-size: 14px; opacity: 0.8; }
 
 /* AO VIVO */
 .live {
@@ -79,10 +75,9 @@ body {
 /* ARTISTA */
 .artista { margin-top: 10px; }
 
-/* 🎵 MUSICA 493px FIXO */
+/* 🎵 MUSICA */
 .musica {
   width: 493px;
-  max-width: 493px;
   overflow: hidden;
   position: relative;
   font-size: 24px;
@@ -92,7 +87,7 @@ body {
 .musica span {
   white-space: nowrap;
   display: inline-block;
-  padding-right: 50px;
+  padding-right: 60px;
 }
 
 /* fade */
@@ -117,38 +112,27 @@ body {
 
 /* animação */
 .rolando {
-  animation: rolarTexto linear infinite alternate;
+  animation: rolarTexto linear infinite;
 }
 
 @keyframes rolarTexto {
   from { transform: translateX(0); }
-  to   { transform: translateX(calc(-100% + 493px)); }
+  to   { transform: translateX(-100%); }
 }
 
-/* OUVINTES */
-.ouvintes { margin-top: 10px; }
-
-/* BOTÃO PLAY */
+/* BOTÃO */
 .play-btn {
   width: 60px;
   height: 60px;
   margin-top: 15px;
   border-radius: 50%;
   background: rgba(255,255,255,0.1);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255,255,255,0.2);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: 0.3s;
 }
 
-.play-btn:hover {
-  transform: scale(1.1);
-}
-
-/* ÍCONE PLAY/PAUSE */
 .icon {
   width: 0;
   height: 0;
@@ -173,9 +157,6 @@ body {
   background: #fff;
 }
 
-.playing .icon::before { left: 0; }
-.playing .icon::after { right: 0; }
-
 /* REDES */
 .redes {
   margin-top: 15px;
@@ -192,22 +173,15 @@ body {
   align-items: center;
   justify-content: center;
   color: #fff;
-  text-decoration: none;
-  transition: 0.3s;
 }
 
-.redes a:hover {
-  background: rgba(255,255,255,0.3);
-  transform: scale(1.1);
-}
-
-/* PARTÍCULAS */
+/* partículas */
 .particle {
   position: fixed;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.9);
   width: 5px;
   height: 5px;
+  background: #fff;
+  border-radius: 50%;
   pointer-events: none;
   animation: subir 1s forwards;
 }
@@ -242,17 +216,16 @@ body {
       <span id="musicaTexto"></span>
     </div>
 
-    <div class="ouvintes" id="ouvintes"></div>
+    <div id="ouvintes"></div>
 
     <div class="play-btn" onclick="togglePlay()" id="btn">
       <div class="icon"></div>
     </div>
 
-    <!-- REDES SOCIAIS -->
     <div class="redes">
-      <a href="https://facebook.com" target="_blank"><i class="fab fa-facebook-f"></i></a>
-      <a href="https://instagram.com" target="_blank"><i class="fab fa-instagram"></i></a>
-      <a href="https://seusite.com" target="_blank"><i class="fas fa-globe"></i></a>
+      <a href="#"><i class="fab fa-facebook-f"></i></a>
+      <a href="#"><i class="fab fa-instagram"></i></a>
+      <a href="#"><i class="fas fa-globe"></i></a>
     </div>
 
   </div>
@@ -268,7 +241,6 @@ let btn = document.getElementById("btn");
 let ultima = "";
 let ultimoTempo = 0;
 
-// botão
 audio.onplay = () => btn.classList.add("playing");
 audio.onpause = () => btn.classList.remove("playing");
 
@@ -283,26 +255,35 @@ setInterval(()=>{
   data.innerText = d.toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo'});
 },1000);
 
-// separar música
+// separar
 function separar(t){
   let p = t.split(" - ");
   return p.length>=2 ? {a:p[0],m:p.slice(1).join(" - ")} : {a:"AO VIVO",m:t};
 }
 
-// música com limite 493
+// 🎵 música corrigida
 function setMusica(txt){
-  let el = musicaTexto;
+  let el = document.getElementById("musicaTexto");
+
   el.classList.remove("rolando");
-  el.style.animation="";
+  el.style.animation = "none";
   el.innerText = txt;
 
-  setTimeout(()=>{
-    if(el.scrollWidth>493){
-      let dist = el.scrollWidth-493;
-      el.style.animation=`rolarTexto ${dist/30}s linear infinite alternate`;
+  setTimeout(() => {
+
+    const limite = 493;
+    const largura = el.scrollWidth;
+
+    if (largura > limite) {
+      const distancia = largura - limite;
+
+      el.offsetHeight; // reinicia animação
+
+      el.style.animation = `rolarTexto ${distancia / 40}s linear infinite`;
       el.classList.add("rolando");
     }
-  },200);
+
+  }, 200);
 }
 
 // API
@@ -310,6 +291,7 @@ function carregar(){
 fetch("https://api.codetabs.com/v1/proxy?quest=https://igng.com.br/api-json/VG5wQmVFOUJQVDA9KzM=")
 .then(r=>r.json())
 .then(d=>{
+
 if(!d.musica_atual || d.musica_atual==ultima)return;
 
 ultima=d.musica_atual;
@@ -323,10 +305,13 @@ ouvintes.innerText="👥 "+d.ouvintes_conectados;
 
 liveStatus.innerHTML=d.musica_atual.includes(" - ")?"":"<div class='live'>● AO VIVO</div>";
 
+// 🖼️ capa corrigida
 if(d.capa_musica){
-capa.style.backgroundImage=`url(${d.capa_musica})`;
-bg.style.backgroundImage=`url(${d.capa_musica})`;
+  let img = d.capa_musica + "?t=" + new Date().getTime();
+  capa.style.backgroundImage=`url(${img})`;
+  bg.style.backgroundImage=`url(${img})`;
 }
+
 });
 }
 
