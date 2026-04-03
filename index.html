@@ -44,6 +44,12 @@ body {
     cursor:pointer;
 }
 
+.info {
+    margin-top:10px;
+    font-size:14px;
+    opacity:0.8;
+}
+
 input[type=range] {
     width:100%;
 }
@@ -62,6 +68,11 @@ input[type=range] {
     <h2 id="currentSong">Carregando...</h2>
     <h4 id="currentArtist">...</h4>
 
+    <div class="info">
+        👥 Ouvintes: <span id="listeners">0</span><br>
+        📡 Status: <span id="status">Offline</span>
+    </div>
+
     <i id="playerButton" class="fa fa-play-circle"></i>
 
     <br><br>
@@ -72,7 +83,7 @@ input[type=range] {
 </div>
 
 <script>
-// 🔥 CONFIG NOVA
+// CONFIG
 const streamURL = "https://stm.igng.com.br:7018";
 const apiURL = "http://igng.com.br/api/TnpBeE9BPT0rWg==";
 
@@ -96,43 +107,50 @@ volume.oninput = () => {
     volIndicator.innerText = volume.value;
 };
 
-// 🔥 API NOVA
+// 🔥 LER XML DIRETO NO JS
 function getData(){
     fetch(apiURL)
-    .then(r=>r.json())
-    .then(data=>{
+    .then(res => res.text())
+    .then(str => new window.DOMParser().parseFromString(str, "text/xml"))
+    .then(xml => {
 
-        let texto = data.currentSong || "Sem música";
+        let musica = xml.getElementsByTagName("musica_atual")[0]?.textContent || "Sem música";
+        let capaAPI = xml.getElementsByTagName("capa_musica")[0]?.textContent;
+        let ouvintes = xml.getElementsByTagName("ouvintes_conectados")[0]?.textContent || "0";
+        let statusRadio = xml.getElementsByTagName("status")[0]?.textContent || "Offline";
 
         let artist = "Desconhecido";
-        let song = texto;
+        let song = musica;
 
-        // separa automaticamente
-        if(texto.includes("-")){
-            let partes = texto.split("-");
-            artist = partes[0].trim();
-            song = partes[1].trim();
+        // separa artista - música
+        if(musica.includes("-")){
+            let p = musica.split("-");
+            artist = p[0].trim();
+            song = p[1].trim();
         }
 
         currentSong.innerText = song;
         currentArtist.innerText = artist;
 
-        buscarCapa(artist,song);
+        listeners.innerText = ouvintes;
+        status.innerText = statusRadio;
+
+        buscarCapa(artist, song, capaAPI);
     })
-    .catch(()=>{
-        currentSong.innerText = "Erro ao carregar";
-        currentArtist.innerText = "...";
+    .catch(() => {
+        currentSong.innerText = "Erro API";
     });
 }
 
-// CAPA APPLE
-function buscarCapa(artist,song){
+// CAPA (Apple + fallback API)
+function buscarCapa(artist, song, capaAPI){
     let q = encodeURIComponent(artist+" "+song);
 
     fetch(`https://itunes.apple.com/search?term=${q}&limit=1`)
     .then(r=>r.json())
     .then(data=>{
-        let cover = "https://via.placeholder.com/500x500?text=Radio";
+
+        let cover = capaAPI || "https://via.placeholder.com/500x500?text=Radio";
 
         if(data.results.length){
             cover = data.results[0].artworkUrl100.replace("100x100","500x500");
