@@ -110,7 +110,7 @@
   <script>
     // 1. Puxar dados da API da rádio
     $.getJSON('http://igng.com.br/api-json/VG5wQmVFOUJQVDA9KzM=', function(data) {
-      console.log(data); // debug para ver os campos
+      console.log(data); // veja os campos no console
 
       $("#radio-name").text(data.titulo);
       $("#listeners").text(data.ouvintes_conectados);
