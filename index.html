@@ -6,229 +6,146 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Radio Player PRO</title>
 
-<!-- BOOTSTRAP -->
 <link rel="stylesheet" href="bootstrap.min.css">
-
-<!-- FONT -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
-@charset "utf-8";
-
-/* IMPORTS */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@1,300;1,800&display=swap');
-
-/* ===== SEU CSS ORIGINAL COMPLETO ===== */
-
-html, body {
-    height: 100%;
-}
-
 body {
-    display: flex;
-    flex-flow: row;
-    justify-content: center;
-    overflow-x: hidden;
-    background: #000;
+    background:#000;
+    color:#fff;
+    font-family: Arial;
+    text-align:center;
 }
 
 #bgCover {
-    height: 100%;
-    width: 100%;
     position: fixed;
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-position: center 20%;
-    filter: blur(20px);
-    transform: scale(2.2);
-    z-index: 1;
+    width:100%;
+    height:100%;
+    background-size:cover;
+    filter:blur(25px);
+    opacity:.4;
+    z-index:-1;
 }
 
-.bg-mask {
-    min-width: 100%;
-    min-height: 100%;
-    position: fixed;
-    background-color: rgba(0,0,0,0.5);
-    z-index: 2;
+.player {
+    max-width:400px;
+    margin:50px auto;
 }
 
-.web-player {
-    height: 100%;
-    color: #fff;
-    padding: 10px;
-    position: relative;
-    z-index: 3;
-    margin-top: 30px;
-    max-width: 400px;
-    width: 100%;
+.cover {
+    width:100%;
+    height:300px;
+    background-size:cover;
+    border-radius:15px;
 }
 
-/* CAPA */
-.cover-album {
-    width: 100%;
-    height: 320px;
-    border-radius: 10px;
-    background-size: cover;
-    border: 2px solid #fff;
-    box-shadow: 0px 5px 10px rgba(0,0,0,.5);
-    margin-bottom: 15px;
-}
-
-/* TEXTO */
-.info-current-song {
-    text-align: center;
-}
-
-.info-current-song h2 {
-    font-size: 28px;
-    font-weight: 800;
-    text-transform: uppercase;
-}
-
-.info-current-song h3 {
-    font-size: 18px;
-    font-weight: 600;
-}
-
-/* BOTÃO */
 #playerButton {
-    font-size: 70px;
-    cursor: pointer;
-}
-
-/* VOLUME */
-.volume-control {
-    margin-top: 20px;
+    font-size:70px;
+    cursor:pointer;
 }
 
 input[type=range] {
-    width: 100%;
+    width:100%;
 }
-
-/* SLIDER */
-input[type=range]::-webkit-slider-thumb {
-    height: 20px;
-    width: 20px;
-    border-radius: 50%;
-    background: #fff;
-}
-
-/* ===== FIM DO SEU CSS ===== */
 </style>
 
 </head>
 
 <body>
 
-<!-- FUNDO -->
 <div id="bgCover"></div>
-<div class="bg-mask"></div>
 
-<!-- PLAYER -->
-<div class="web-player text-center">
+<div class="player">
 
-    <!-- CAPA -->
-    <div id="currentCoverArt" class="cover-album"></div>
+    <div id="currentCoverArt" class="cover"></div>
 
-    <!-- INFO -->
-    <div class="info-current-song">
-        <h2 id="currentSong">Carregando...</h2>
-        <h3 id="currentArtist">...</h3>
-    </div>
+    <h2 id="currentSong">Carregando...</h2>
+    <h4 id="currentArtist">...</h4>
 
-    <!-- PLAY -->
-    <div class="play-pause mt-3">
-        <i id="playerButton" class="fa fa-play-circle"></i>
-    </div>
+    <i id="playerButton" class="fa fa-play-circle"></i>
 
-    <!-- VOLUME -->
-    <div class="volume-control">
-        <input type="range" id="volume" min="0" max="100" value="80">
-        <p>Volume: <span id="volIndicator">80</span>%</p>
-    </div>
+    <br><br>
+
+    <input type="range" id="volume" min="0" max="100" value="80">
+    <p>Volume: <span id="volIndicator">80</span>%</p>
 
 </div>
 
-<!-- JS -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jquery.marquee@1.6.0/jquery.marquee.min.js"></script>
-
 <script>
-// CONFIG
+// 🔥 CONFIG NOVA
 const streamURL = "https://stm.igng.com.br:7018";
-const apiURL = "http://igng.com.br/api/VG5wQmVFOUJQVDA9KzM=";
+const apiURL = "http://igng.com.br/api/TnpBeE9BPT0rWg==";
 
 let audio = new Audio(streamURL);
 audio.volume = 0.8;
 
-// PLAY / PAUSE
-const btn = document.getElementById("playerButton");
-
-btn.addEventListener("click", () => {
-    if (audio.paused) {
+// PLAY
+playerButton.onclick = () => {
+    if(audio.paused){
         audio.play();
-        btn.classList.replace("fa-play-circle","fa-pause-circle");
+        playerButton.classList.replace("fa-play-circle","fa-pause-circle");
     } else {
         audio.pause();
-        btn.classList.replace("fa-pause-circle","fa-play-circle");
+        playerButton.classList.replace("fa-pause-circle","fa-play-circle");
     }
-});
+};
 
 // VOLUME
-const volume = document.getElementById("volume");
-const volIndicator = document.getElementById("volIndicator");
-
-volume.addEventListener("input", () => {
-    audio.volume = volume.value / 100;
+volume.oninput = () => {
+    audio.volume = volume.value/100;
     volIndicator.innerText = volume.value;
-});
+};
 
-// API
-function getData() {
+// 🔥 API NOVA
+function getData(){
     fetch(apiURL)
-    .then(res => res.json())
-    .then(data => {
+    .then(r=>r.json())
+    .then(data=>{
 
-        let song = data.currentSong || "Sem música";
-        let artist = data.currentArtist || "Sem artista";
+        let texto = data.currentSong || "Sem música";
 
-        // separa artista - música
-        if (song.includes("-")) {
-            let parts = song.split("-");
-            artist = parts[0].trim();
-            song = parts[1].trim();
+        let artist = "Desconhecido";
+        let song = texto;
+
+        // separa automaticamente
+        if(texto.includes("-")){
+            let partes = texto.split("-");
+            artist = partes[0].trim();
+            song = partes[1].trim();
         }
 
-        $("#currentSong").text(song).marquee({duration:8000});
-        $("#currentArtist").text(artist).marquee({duration:10000});
+        currentSong.innerText = song;
+        currentArtist.innerText = artist;
 
-        buscarCapa(artist, song);
+        buscarCapa(artist,song);
+    })
+    .catch(()=>{
+        currentSong.innerText = "Erro ao carregar";
+        currentArtist.innerText = "...";
     });
 }
 
 // CAPA APPLE
-function buscarCapa(artist, song) {
-    let query = encodeURIComponent(artist + " " + song);
+function buscarCapa(artist,song){
+    let q = encodeURIComponent(artist+" "+song);
 
-    fetch(`https://itunes.apple.com/search?term=${query}&limit=1`)
-    .then(res => res.json())
-    .then(data => {
+    fetch(`https://itunes.apple.com/search?term=${q}&limit=1`)
+    .then(r=>r.json())
+    .then(data=>{
+        let cover = "https://via.placeholder.com/500x500?text=Radio";
 
-        let cover = "https://via.placeholder.com/500x500";
-
-        if (data.results.length > 0) {
+        if(data.results.length){
             cover = data.results[0].artworkUrl100.replace("100x100","500x500");
         }
 
-        document.getElementById("currentCoverArt").style.backgroundImage = `url(${cover})`;
-        document.getElementById("bgCover").style.backgroundImage = `url(${cover})`;
+        currentCoverArt.style.backgroundImage = `url(${cover})`;
+        bgCover.style.backgroundImage = `url(${cover})`;
     });
 }
 
 // LOOP
-setInterval(getData, 10000);
+setInterval(getData, 8000);
 getData();
-
 </script>
 
 </body>
