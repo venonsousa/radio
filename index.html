@@ -26,8 +26,6 @@ body {
   filter: blur(40px) brightness(0.4);
   transform: scale(1.2);
   background-size: cover;
-  z-index: -1;
-  transition: 0.8s;
 }
 
 /* PLAYER */
@@ -48,7 +46,6 @@ body {
   height: 216px;
   margin: 20px;
   border-radius: 12px;
-  background: #222;
   background-size: cover;
   background-position: center;
 }
@@ -59,40 +56,30 @@ body {
   flex: 1;
 }
 
-.radio { opacity: 0.8; }
-
 /* RELÓGIO */
 .relogio {
-  margin-top: 5px;
   font-size: 14px;
   opacity: 0.8;
 }
 
 /* AO VIVO */
 .live {
-  display: inline-block;
   margin-top: 10px;
   padding: 5px 10px;
   background: red;
   border-radius: 20px;
   font-size: 12px;
-  font-weight: bold;
   animation: blink 1s infinite;
 }
-
-@keyframes blink {
-  50% { opacity: 0.5; }
-}
+@keyframes blink { 50% { opacity: 0.5; } }
 
 /* ARTISTA */
-.artista {
-  margin-top: 10px;
-  font-size: 18px;
-}
+.artista { margin-top: 10px; }
 
-/* 🎵 MUSICA CORRIGIDA (NUNCA SAI DO PLAYER) */
+/* 🎵 MUSICA 493px */
 .musica {
-  width: 100%;
+  width: 493px;
+  max-width: 493px;
   overflow: hidden;
   position: relative;
   font-size: 24px;
@@ -100,30 +87,29 @@ body {
 }
 
 .musica span {
-  display: inline-block;
   white-space: nowrap;
+  display: inline-block;
   padding-right: 50px;
 }
 
-/* fade nas bordas */
+/* fade */
 .musica::before,
 .musica::after {
   content: "";
   position: absolute;
   top: 0;
-  width: 40px;
+  width: 30px;
   height: 100%;
-  z-index: 2;
 }
 
 .musica::before {
   left: 0;
-  background: linear-gradient(to right, rgba(0,0,0,0.9), transparent);
+  background: linear-gradient(to right, #000, transparent);
 }
 
 .musica::after {
   right: 0;
-  background: linear-gradient(to left, rgba(0,0,0,0.9), transparent);
+  background: linear-gradient(to left, #000, transparent);
 }
 
 /* animação */
@@ -133,69 +119,61 @@ body {
 
 @keyframes rolarTexto {
   from { transform: translateX(0); }
-  to   { transform: translateX(calc(-100% + 100%)); }
+  to   { transform: translateX(calc(-100% + 493px)); }
 }
 
-/* OUVINTES */
-.ouvintes {
-  margin-top: 10px;
-}
-
-/* BOTÃO */
+/* BOTÃO PLAY */
 .play-btn {
   width: 60px;
   height: 60px;
-  margin-top: 20px;
+  margin-top: 15px;
   border-radius: 50%;
   background: rgba(255,255,255,0.1);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255,255,255,0.2);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
 }
 
-.icon {
-  width: 0;
-  height: 0;
-  border-left: 14px solid #fff;
-  border-top: 9px solid transparent;
-  border-bottom: 9px solid transparent;
+/* REDES SOCIAIS */
+.redes {
+  margin-top: 15px;
+  display: flex;
+  gap: 10px;
 }
 
-.playing .icon {
-  width: 14px;
-  height: 18px;
-  border: none;
-  position: relative;
+.redes a {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: #fff;
+  font-size: 14px;
+  transition: 0.3s;
 }
 
-.playing .icon::before,
-.playing .icon::after {
-  content: "";
-  position: absolute;
-  width: 4px;
-  height: 100%;
-  background: #fff;
+.redes a:hover {
+  background: rgba(255,255,255,0.3);
 }
 
-.playing .icon::before { left: 0; }
-.playing .icon::after { right: 0; }
-
-/* 🔵 BOLINHAS BRANCAS */
+/* partículas */
 .particle {
   position: fixed;
   border-radius: 50%;
+  background: #fff;
+  width: 5px;
+  height: 5px;
   pointer-events: none;
-  background: rgba(255,255,255,0.9);
-  box-shadow: 0 0 8px rgba(255,255,255,0.6);
-  animation: subir 1s ease-out forwards;
+  animation: subir 1s forwards;
 }
 
 @keyframes subir {
-  0% { transform: translateY(0); opacity: 1; }
-  100% { transform: translateY(-50px) scale(0.3); opacity: 0; }
+  to { transform: translateY(-40px); opacity: 0; }
 }
 
 </style>
@@ -210,26 +188,31 @@ body {
   <div class="capa" id="capa"></div>
 
   <div class="content">
-    <div class="radio" id="radio">Carregando...</div>
+    <div id="radio">Carregando...</div>
 
     <div class="relogio">
-      <span id="hora"></span> • 
-      <span id="data"></span>
+      <span id="hora"></span> • <span id="data"></span>
     </div>
 
     <div id="liveStatus"></div>
 
-    <div class="artista" id="artista">---</div>
+    <div class="artista" id="artista"></div>
 
     <div class="musica">
-      <span id="musicaTexto">---</span>
+      <span id="musicaTexto"></span>
     </div>
 
-    <div class="ouvintes" id="ouvintes">👥 0</div>
+    <div id="ouvintes"></div>
 
-    <div class="play-btn" onclick="togglePlay()" id="btn">
-      <div class="icon"></div>
+    <div class="play-btn" onclick="togglePlay()">▶</div>
+
+    <!-- REDES -->
+    <div class="redes">
+      <a href="#" target="_blank">F</a>
+      <a href="#" target="_blank">I</a>
+      <a href="#" target="_blank">🌐</a>
     </div>
+
   </div>
 
 </div>
@@ -239,135 +222,78 @@ body {
 <script>
 
 let audio = document.getElementById("audio");
-let btn = document.getElementById("btn");
-let ultimaMusica = "";
-let ultimoTempo = 0;
+let ultima = "";
 
-// botão
-audio.onplay = () => btn.classList.add("playing");
-audio.onpause = () => btn.classList.remove("playing");
-
-function togglePlay() {
+// play
+function togglePlay(){
   audio.paused ? audio.play() : audio.pause();
 }
 
 // relógio
-function atualizarRelogio() {
-  const agora = new Date();
-  document.getElementById("hora").innerText =
-    agora.toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo' });
-  document.getElementById("data").innerText =
-    agora.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
-}
-setInterval(atualizarRelogio, 1000);
-atualizarRelogio();
+setInterval(()=>{
+  let d = new Date();
+  hora.innerText = d.toLocaleTimeString('pt-BR',{timeZone:'America/Sao_Paulo'});
+  data.innerText = d.toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo'});
+},1000);
 
-// separar música
-function separarMusica(texto) {
-  if (!texto) return { artista: "Desconhecido", musica: "Sem dados" };
-
-  let partes = texto.split(" - ");
-  return partes.length >= 2
-    ? { artista: partes[0], musica: partes.slice(1).join(" - ") }
-    : { artista: "AO VIVO", musica: texto };
+// separar
+function separar(t){
+  let p = t.split(" - ");
+  return p.length>=2 ? {a:p[0],m:p[1]} : {a:"AO VIVO",m:t};
 }
 
-// música dinâmica perfeita
-function atualizarTextoMusica(texto) {
-  const el = document.getElementById("musicaTexto");
+// música
+function setMusica(txt){
+  let el = musicaTexto;
   el.classList.remove("rolando");
-  el.style.animation = "";
-  el.innerText = texto;
+  el.style.animation="";
+  el.innerText = txt;
 
-  setTimeout(() => {
-    const container = el.parentElement;
-
-    if (el.scrollWidth > container.clientWidth) {
-      const distancia = el.scrollWidth - container.clientWidth;
-      el.style.animation = `rolarTexto ${distancia / 30}s linear infinite alternate`;
+  setTimeout(()=>{
+    if(el.scrollWidth>493){
+      let dist = el.scrollWidth-493;
+      el.style.animation=`rolarTexto ${dist/30}s linear infinite alternate`;
       el.classList.add("rolando");
     }
-  }, 200);
+  },200);
 }
 
-// APIs
-const API_JSON = "https://api.codetabs.com/v1/proxy?quest=https://igng.com.br/api-json/VG5wQmVFOUJQVDA9KzM=";
-const API_XML  = "https://api.codetabs.com/v1/proxy?quest=https://igng.com.br/api/NzAxOCsx";
+// API
+function carregar(){
+fetch("https://api.codetabs.com/v1/proxy?quest=https://igng.com.br/api-json/VG5wQmVFOUJQVDA9KzM=")
+.then(r=>r.json())
+.then(d=>{
+if(!d.musica_atual || d.musica_atual==ultima)return;
 
-// JSON
-function carregarJSON() {
-  fetch(API_JSON)
-    .then(r => r.json())
-    .then(data => {
-      if (!data || !data.musica_atual) throw "erro";
-      processar(data);
-    })
-    .catch(() => carregarXML());
+ultima=d.musica_atual;
+
+let info=separar(d.musica_atual);
+
+radio.innerText=d.titulo;
+artista.innerText=info.a;
+setMusica(info.m);
+ouvintes.innerText="👥 "+d.ouvintes_conectados;
+
+liveStatus.innerHTML=d.musica_atual.includes(" - ")?"":"<div class='live'>● AO VIVO</div>";
+
+if(d.capa_musica){
+capa.style.backgroundImage=`url(${d.capa_musica})`;
+bg.style.backgroundImage=`url(${d.capa_musica})`;
+}
+});
 }
 
-// XML fallback
-function carregarXML() {
-  fetch(API_XML)
-    .then(r => r.text())
-    .then(str => {
-      let xml = new DOMParser().parseFromString(str, "text/xml");
+setInterval(carregar,3000);
+carregar();
 
-      let data = {
-        titulo: xml.getElementsByTagName("titulo")[0]?.textContent,
-        musica_atual: xml.getElementsByTagName("musica_atual")[0]?.textContent,
-        ouvintes_conectados: xml.getElementsByTagName("ouvintes_conectados")[0]?.textContent,
-        capa_musica: xml.getElementsByTagName("capa_musica")[0]?.textContent
-      };
-
-      processar(data);
-    });
-}
-
-// atualizar player
-function processar(data) {
-  if (!data.musica_atual || data.musica_atual === ultimaMusica) return;
-
-  ultimaMusica = data.musica_atual;
-
-  let info = separarMusica(data.musica_atual);
-
-  document.getElementById("radio").innerText = data.titulo || "Rádio";
-  document.getElementById("artista").innerText = info.artista;
-  atualizarTextoMusica(info.musica);
-  document.getElementById("ouvintes").innerText = "👥 " + (data.ouvintes_conectados || 0);
-
-  let live = document.getElementById("liveStatus");
-  live.innerHTML = data.musica_atual.includes(" - ") ? "" : '<div class="live">● AO VIVO</div>';
-
-  if (data.capa_musica && data.capa_musica.includes("http")) {
-    document.getElementById("capa").style.backgroundImage = `url(${data.capa_musica})`;
-    document.getElementById("bg").style.backgroundImage = `url(${data.capa_musica})`;
-  }
-}
-
-// tempo real
-setInterval(carregarJSON, 3000);
-carregarJSON();
-
-// partículas no mouse
-document.addEventListener("mousemove", function(e) {
-  const agora = Date.now();
-  if (agora - ultimoTempo < 40) return;
-  ultimoTempo = agora;
-
-  const bolinha = document.createElement("div");
-  bolinha.className = "particle";
-
-  bolinha.style.left = e.clientX + "px";
-  bolinha.style.top = e.clientY + "px";
-
-  let size = Math.random() * 4 + 4;
-  bolinha.style.width = size + "px";
-  bolinha.style.height = size + "px";
-
-  document.body.appendChild(bolinha);
-
-  setTimeout(() => bolinha.remove(), 1000);
+// partículas
+document.addEventListener("mousemove",e=>{
+let p=document.createElement("div");
+p.className="particle";
+p.style.left=e.clientX+"px";
+p.style.top=e.clientY+"px";
+document.body.appendChild(p);
+setTimeout(()=>p.remove(),1000);
 });
 
 </script>
