@@ -12,7 +12,7 @@
       height: 100vh;
       margin: 0;
       font-family: 'Segoe UI', Arial, sans-serif;
-      overflow: hidden; /* necessário para o efeito das notas */
+      overflow: hidden;
     }
 
     .radio-player {
@@ -69,11 +69,11 @@
     /* Notas musicais menores e sobre o player */
     .note {
       position: absolute;
-      font-size: 14px; /* tamanho reduzido */
+      font-size: 14px;
       color: #ffcc00;
       pointer-events: none;
       animation: floatUp 1.2s ease-out forwards;
-      z-index: 9999; /* garante que fique por cima do player */
+      z-index: 9999;
     }
 
     @keyframes floatUp {
@@ -108,31 +108,37 @@
 
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script>
-    // 1. Puxar dados da nova API da rádio
-    $.getJSON('http://igng.com.br/api/VG5wQmVFOUJQVDA9KzM=', function(data) {
+    // 1. Puxar dados da API da rádio
+    $.getJSON('http://igng.com.br/api-json/VG5wQmVFOUJQVDA9KzM=', function(data) {
+      console.log(data); // debug para ver os campos
+
       $("#radio-name").text(data.titulo);
       $("#listeners").text(data.ouvintes_conectados);
       $("#bitrate").text(data.plano_bitrate + " kbps");
       $("#song").text(data.musica_atual);
       $("#genre").text(data.genero);
 
-      // 2. Buscar capa oficial na Apple Music
-      const developerToken = "SEU_APPLE_DEVELOPER_TOKEN"; // substitua pelo seu token
-      const musica = data.musica_atual;
+      // 2. Mostrar capa da API ou buscar na Apple Music
+      if (data.capa_musica) {
+        $("#album-cover").attr("src", data.capa_musica);
+      } else {
+        const developerToken = "SEU_APPLE_DEVELOPER_TOKEN"; // substitua pelo seu token
+        const musica = data.musica_atual;
 
-      fetch(`https://api.music.apple.com/v1/catalog/br/search?term=${encodeURIComponent(musica)}&types=songs`, {
-        headers: { Authorization: `Bearer ${developerToken}` }
-      })
-      .then(res => res.json())
-      .then(result => {
-        if (result.results.songs.data.length > 0) {
-          const song = result.results.songs.data[0];
-          const albumCover = song.attributes.artwork.url
-            .replace('{w}', '300')
-            .replace('{h}', '300');
-          $("#album-cover").attr("src", albumCover);
-        }
-      });
+        fetch(`https://api.music.apple.com/v1/catalog/br/search?term=${encodeURIComponent(musica)}&types=songs`, {
+          headers: { Authorization: `Bearer ${developerToken}` }
+        })
+        .then(res => res.json())
+        .then(result => {
+          if (result.results.songs.data.length > 0) {
+            const song = result.results.songs.data[0];
+            const albumCover = song.attributes.artwork.url
+              .replace('{w}', '300')
+              .replace('{h}', '300');
+            $("#album-cover").attr("src", albumCover);
+          }
+        });
+      }
     });
 
     // 3. Efeito de notas musicais no cursor
