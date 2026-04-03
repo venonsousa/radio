@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Player Rádio ULTRA</title>
+<title>Player Rádio ULTRA MASTER</title>
 
 <style>
 body {
@@ -18,7 +18,7 @@ body {
   overflow: hidden;
 }
 
-/* FUNDO BLUR */
+/* FUNDO */
 .bg {
   position: fixed;
   width: 100%;
@@ -51,7 +51,6 @@ body {
   background: #222;
   background-size: cover;
   background-position: center;
-  transition: 0.5s;
 }
 
 /* CONTEÚDO */
@@ -61,6 +60,13 @@ body {
 }
 
 .radio { opacity: 0.8; }
+
+/* RELÓGIO */
+.relogio {
+  margin-top: 5px;
+  font-size: 14px;
+  opacity: 0.8;
+}
 
 /* AO VIVO */
 .live {
@@ -84,7 +90,7 @@ body {
   font-size: 18px;
 }
 
-/* MUSICA COM ROLAGEM */
+/* MUSICA ROLANDO */
 .musica {
   width: 100%;
   overflow: hidden;
@@ -97,7 +103,6 @@ body {
   display: inline-block;
 }
 
-/* animação */
 .rolando {
   animation: rolarTexto 10s linear infinite;
 }
@@ -168,6 +173,12 @@ body {
   <div class="content">
     <div class="radio" id="radio">Carregando...</div>
 
+    <!-- RELÓGIO -->
+    <div class="relogio">
+      <span id="hora">00:00:00</span> • 
+      <span id="data">00/00/0000</span>
+    </div>
+
     <div id="liveStatus"></div>
 
     <div class="artista" id="artista">---</div>
@@ -200,6 +211,25 @@ audio.onpause = () => btn.classList.remove("playing");
 function togglePlay() {
   audio.paused ? audio.play() : audio.pause();
 }
+
+// 🇧🇷 RELÓGIO
+function atualizarRelogio() {
+  const agora = new Date();
+
+  const hora = agora.toLocaleTimeString('pt-BR', {
+    timeZone: 'America/Sao_Paulo'
+  });
+
+  const data = agora.toLocaleDateString('pt-BR', {
+    timeZone: 'America/Sao_Paulo'
+  });
+
+  document.getElementById("hora").innerText = hora;
+  document.getElementById("data").innerText = data;
+}
+
+setInterval(atualizarRelogio, 1000);
+atualizarRelogio();
 
 // separar artista
 function separarMusica(texto) {
