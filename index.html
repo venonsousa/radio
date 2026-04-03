@@ -19,7 +19,6 @@ body {
   overflow: hidden;
 }
 
-/* FUNDO COM BLUR */
 .bg {
   position: fixed;
   width: 100%;
@@ -32,7 +31,6 @@ body {
   transition: 0.8s;
 }
 
-/* PLAYER */
 .player {
   width: 767px;
   height: 410px;
@@ -44,7 +42,6 @@ body {
   border: 1px solid rgba(255,255,255,0.2);
 }
 
-/* CAPA */
 .capa {
   width: 198px;
   height: 216px;
@@ -54,15 +51,12 @@ body {
   background-position: center;
 }
 
-/* CONTEÚDO */
 .content {
   flex: 1;
   padding: 20px;
 }
 
-.radio {
-  opacity: 0.8;
-}
+.radio { opacity: 0.8; }
 
 .artista {
   font-size: 18px;
@@ -80,7 +74,7 @@ body {
   font-size: 14px;
 }
 
-/* BOTÃO MENOR */
+/* BOTÃO */
 .play-btn {
   width: 60px;
   height: 60px;
@@ -101,7 +95,6 @@ body {
   background: rgba(255,255,255,0.2);
 }
 
-/* ICON */
 .icon {
   width: 0;
   height: 0;
@@ -157,7 +150,8 @@ body {
 
 </div>
 
-<audio id="audio" src="http://stm.igng.com.br:7018/stream"></audio>
+<!-- 🔥 STREAM HTTPS -->
+<audio id="audio" src="https://stm.igng.com.br:7018/stream"></audio>
 
 <script>
 
@@ -177,7 +171,7 @@ function togglePlay() {
   }
 }
 
-// 🔥 SEPARAR ARTISTA / MÚSICA
+// separar artista
 function separarMusica(texto) {
   let partes = texto.split(" - ");
   return {
@@ -186,10 +180,10 @@ function separarMusica(texto) {
   };
 }
 
-// API
+// API HTTPS
 function carregarDados() {
   $.getJSON(
-    "https://api.allorigins.win/raw?url=http://igng.com.br/api-json/VG5wQmVFOUJQVDA9KzM=",
+    "https://api.allorigins.win/raw?url=https://igng.com.br/api-json/VG5wQmVFOUJQVDA9KzM=",
     function(data) {
 
       let info = separarMusica(data.musica_atual);
