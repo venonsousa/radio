@@ -127,22 +127,29 @@ body {
   margin-top: 15px;
   border-radius: 50%;
   background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.2);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  transition: 0.3s;
 }
 
+.play-btn:hover { transform: scale(1.1); }
+
+/* PLAY */
 .icon {
   width: 0;
   height: 0;
-  border-left: 14px solid #fff;
-  border-top: 9px solid transparent;
-  border-bottom: 9px solid transparent;
+  border-left: 16px solid #fff;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
 }
 
+/* PAUSE */
 .playing .icon {
-  width: 14px;
+  width: 18px;
   height: 18px;
   border: none;
   position: relative;
@@ -152,10 +159,13 @@ body {
 .playing .icon::after {
   content: "";
   position: absolute;
-  width: 4px;
+  width: 5px;
   height: 100%;
   background: #fff;
 }
+
+.playing .icon::before { left: 0; }
+.playing .icon::after { right: 0; }
 
 /* REDES */
 .redes {
@@ -173,9 +183,10 @@ body {
   align-items: center;
   justify-content: center;
   color: #fff;
+  text-decoration: none;
 }
 
-/* partículas */
+/* PARTÍCULAS */
 .particle {
   position: fixed;
   width: 5px;
@@ -218,10 +229,12 @@ body {
 
     <div id="ouvintes"></div>
 
-    <div class="play-btn" onclick="togglePlay()" id="btn">
+    <!-- BOTÃO -->
+    <div class="play-btn" id="btn">
       <div class="icon"></div>
     </div>
 
+    <!-- REDES -->
     <div class="redes">
       <a href="#"><i class="fab fa-facebook-f"></i></a>
       <a href="#"><i class="fab fa-instagram"></i></a>
@@ -236,32 +249,46 @@ body {
 
 <script>
 
-let audio = document.getElementById("audio");
-let btn = document.getElementById("btn");
+const audio = document.getElementById("audio");
+const btn = document.getElementById("btn");
+
 let ultima = "";
 let ultimoTempo = 0;
 
-audio.onplay = () => btn.classList.add("playing");
-audio.onpause = () => btn.classList.remove("playing");
-
-function togglePlay(){
+// BOTÃO
+btn.addEventListener("click", () => {
   audio.paused ? audio.play() : audio.pause();
-}
+});
 
-// relógio
+audio.addEventListener("play", () => {
+  btn.classList.add("playing");
+});
+
+audio.addEventListener("pause", () => {
+  btn.classList.remove("playing");
+});
+
+// AUTOPLAY
+window.addEventListener("load", () => {
+  audio.volume = 1;
+  let p = audio.play();
+  if (p !== undefined) p.catch(()=>{});
+});
+
+// RELÓGIO
 setInterval(()=>{
   let d = new Date();
   hora.innerText = d.toLocaleTimeString('pt-BR',{timeZone:'America/Sao_Paulo'});
   data.innerText = d.toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo'});
 },1000);
 
-// separar
+// SEPARAR
 function separar(t){
   let p = t.split(" - ");
   return p.length>=2 ? {a:p[0],m:p.slice(1).join(" - ")} : {a:"AO VIVO",m:t};
 }
 
-// 🎵 música corrigida
+// MÚSICA
 function setMusica(txt){
   let el = document.getElementById("musicaTexto");
 
@@ -270,19 +297,15 @@ function setMusica(txt){
   el.innerText = txt;
 
   setTimeout(() => {
-
     const limite = 493;
     const largura = el.scrollWidth;
 
     if (largura > limite) {
-      const distancia = largura - limite;
-
-      el.offsetHeight; // reinicia animação
-
-      el.style.animation = `rolarTexto ${distancia / 40}s linear infinite`;
+      const dist = largura - limite;
+      el.offsetHeight;
+      el.style.animation = `rolarTexto ${dist / 40}s linear infinite`;
       el.classList.add("rolando");
     }
-
   }, 200);
 }
 
@@ -305,9 +328,8 @@ ouvintes.innerText="👥 "+d.ouvintes_conectados;
 
 liveStatus.innerHTML=d.musica_atual.includes(" - ")?"":"<div class='live'>● AO VIVO</div>";
 
-// 🖼️ capa corrigida
 if(d.capa_musica){
-  let img = d.capa_musica + "?t=" + new Date().getTime();
+  let img = d.capa_musica + "?t=" + Date.now();
   capa.style.backgroundImage=`url(${img})`;
   bg.style.backgroundImage=`url(${img})`;
 }
@@ -318,7 +340,7 @@ if(d.capa_musica){
 setInterval(carregar,3000);
 carregar();
 
-// partículas
+// PARTÍCULAS
 document.addEventListener("mousemove",e=>{
 let agora=Date.now();
 if(agora-ultimoTempo<40)return;
