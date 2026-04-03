@@ -83,7 +83,7 @@
 
     <div class="player-audio">
       <audio id="radio-stream" controls autoplay>
-        <source src="https://stm.igng.com.br:7018/steam" type="audio/mpeg">
+        <source src="https://stm.igng.com.br:7018/stream" type="audio/mpeg">
         Seu navegador não suporta áudio HTML5.
       </audio>
     </div>
@@ -91,13 +91,33 @@
 
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script>
+    // 1. Puxar dados da rádio
     $.getJSON('http://igng.com.br/api-json/TnpBeE9BPT0rWg==', function(data) {
       $("#radio-name").text(data.titulo);
       $("#listeners").text(data.ouvintes_conectados);
       $("#bitrate").text(data.plano_bitrate + " kbps");
       $("#song").text(data.musica_atual);
       $("#genre").text(data.genero);
-      $("#album-cover").attr("src", data.capa_musica);
+
+      // 2. Buscar capa oficial na Apple Music
+      const developerToken = "SEU_APPLE_DEVELOPER_TOKEN"; // precisa gerar no Apple Developer
+      const musica = data.musica_atual;
+
+      fetch(`https://api.music.apple.com/v1/catalog/br/search?term=${encodeURIComponent(musica)}&types=songs`, {
+        headers: {
+          Authorization: `Bearer ${developerToken}`
+        }
+      })
+      .then(res => res.json())
+      .then(result => {
+        if (result.results.songs.data.length > 0) {
+          const song = result.results.songs.data[0];
+          const albumCover = song.attributes.artwork.url
+            .replace('{w}', '300')
+            .replace('{h}', '300');
+          $("#album-cover").attr("src", albumCover);
+        }
+      });
     });
   </script>
 </body>
