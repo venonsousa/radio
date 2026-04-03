@@ -6,6 +6,9 @@
 
 <title>Player Rádio ULTRA MASTER</title>
 
+<!-- Ícones -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
 <style>
 body {
   margin: 0;
@@ -76,7 +79,7 @@ body {
 /* ARTISTA */
 .artista { margin-top: 10px; }
 
-/* 🎵 MUSICA 493px */
+/* 🎵 MUSICA 493px FIXO */
 .musica {
   width: 493px;
   max-width: 493px;
@@ -122,6 +125,9 @@ body {
   to   { transform: translateX(calc(-100% + 493px)); }
 }
 
+/* OUVINTES */
+.ouvintes { margin-top: 10px; }
+
 /* BOTÃO PLAY */
 .play-btn {
   width: 60px;
@@ -130,13 +136,47 @@ body {
   border-radius: 50%;
   background: rgba(255,255,255,0.1);
   backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.2);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  transition: 0.3s;
 }
 
-/* REDES SOCIAIS */
+.play-btn:hover {
+  transform: scale(1.1);
+}
+
+/* ÍCONE PLAY/PAUSE */
+.icon {
+  width: 0;
+  height: 0;
+  border-left: 14px solid #fff;
+  border-top: 9px solid transparent;
+  border-bottom: 9px solid transparent;
+}
+
+.playing .icon {
+  width: 14px;
+  height: 18px;
+  border: none;
+  position: relative;
+}
+
+.playing .icon::before,
+.playing .icon::after {
+  content: "";
+  position: absolute;
+  width: 4px;
+  height: 100%;
+  background: #fff;
+}
+
+.playing .icon::before { left: 0; }
+.playing .icon::after { right: 0; }
+
+/* REDES */
 .redes {
   margin-top: 15px;
   display: flex;
@@ -151,21 +191,21 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  text-decoration: none;
   color: #fff;
-  font-size: 14px;
+  text-decoration: none;
   transition: 0.3s;
 }
 
 .redes a:hover {
   background: rgba(255,255,255,0.3);
+  transform: scale(1.1);
 }
 
-/* partículas */
+/* PARTÍCULAS */
 .particle {
   position: fixed;
   border-radius: 50%;
-  background: #fff;
+  background: rgba(255,255,255,0.9);
   width: 5px;
   height: 5px;
   pointer-events: none;
@@ -202,15 +242,17 @@ body {
       <span id="musicaTexto"></span>
     </div>
 
-    <div id="ouvintes"></div>
+    <div class="ouvintes" id="ouvintes"></div>
 
-    <div class="play-btn" onclick="togglePlay()">▶</div>
+    <div class="play-btn" onclick="togglePlay()" id="btn">
+      <div class="icon"></div>
+    </div>
 
-    <!-- REDES -->
+    <!-- REDES SOCIAIS -->
     <div class="redes">
-      <a href="#" target="_blank">F</a>
-      <a href="#" target="_blank">I</a>
-      <a href="#" target="_blank">🌐</a>
+      <a href="https://facebook.com" target="_blank"><i class="fab fa-facebook-f"></i></a>
+      <a href="https://instagram.com" target="_blank"><i class="fab fa-instagram"></i></a>
+      <a href="https://seusite.com" target="_blank"><i class="fas fa-globe"></i></a>
     </div>
 
   </div>
@@ -222,9 +264,14 @@ body {
 <script>
 
 let audio = document.getElementById("audio");
+let btn = document.getElementById("btn");
 let ultima = "";
+let ultimoTempo = 0;
 
-// play
+// botão
+audio.onplay = () => btn.classList.add("playing");
+audio.onpause = () => btn.classList.remove("playing");
+
 function togglePlay(){
   audio.paused ? audio.play() : audio.pause();
 }
@@ -236,13 +283,13 @@ setInterval(()=>{
   data.innerText = d.toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo'});
 },1000);
 
-// separar
+// separar música
 function separar(t){
   let p = t.split(" - ");
-  return p.length>=2 ? {a:p[0],m:p[1]} : {a:"AO VIVO",m:t};
+  return p.length>=2 ? {a:p[0],m:p.slice(1).join(" - ")} : {a:"AO VIVO",m:t};
 }
 
-// música
+// música com limite 493
 function setMusica(txt){
   let el = musicaTexto;
   el.classList.remove("rolando");
@@ -288,6 +335,10 @@ carregar();
 
 // partículas
 document.addEventListener("mousemove",e=>{
+let agora=Date.now();
+if(agora-ultimoTempo<40)return;
+ultimoTempo=agora;
+
 let p=document.createElement("div");
 p.className="particle";
 p.style.left=e.clientX+"px";
