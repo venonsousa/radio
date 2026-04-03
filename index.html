@@ -4,7 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Player Rádio Glass</title>
+<title>Player Rádio PRO</title>
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <style>
 body {
@@ -17,6 +20,7 @@ body {
   font-family: Arial, sans-serif;
 }
 
+/* PLAYER */
 .player {
   width: 767px;
   height: 410px;
@@ -30,15 +34,17 @@ body {
   display: flex;
 }
 
+/* CAPA */
 .capa {
   width: 198px;
   height: 216px;
   background-size: cover;
   background-position: center;
   margin: 20px;
-  border-radius: 10px;
+  border-radius: 12px;
 }
 
+/* CONTEÚDO */
 .content {
   flex: 1;
   padding: 20px;
@@ -55,10 +61,9 @@ body {
   margin: 15px 0;
   white-space: nowrap;
   overflow: hidden;
-  position: relative;
 }
 
-.musica span {
+.rolar {
   display: inline-block;
   padding-left: 100%;
   animation: scroll 10s linear infinite;
@@ -74,20 +79,60 @@ body {
   font-size: 14px;
 }
 
-button {
-  margin-top: 20px;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 10px;
-  background: rgba(255,255,255,0.2);
-  color: #fff;
-  cursor: pointer;
-  font-size: 16px;
+/* BOTÃO ULTRA */
+.controls {
+  margin-top: 25px;
 }
 
-button:hover {
-  background: rgba(255,255,255,0.3);
+.play-btn {
+  width: 75px;
+  height: 75px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.4s ease;
 }
+
+.play-btn:hover {
+  transform: scale(1.08);
+  background: rgba(255,255,255,0.15);
+}
+
+.icon {
+  width: 0;
+  height: 0;
+  border-left: 18px solid #fff;
+  border-top: 12px solid transparent;
+  border-bottom: 12px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.playing .icon {
+  width: 16px;
+  height: 20px;
+  border: none;
+  position: relative;
+}
+
+.playing .icon::before,
+.playing .icon::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 5px;
+  height: 100%;
+  background: #fff;
+  border-radius: 2px;
+}
+
+.playing .icon::before { left: 0; }
+.playing .icon::after { right: 0; }
+
 </style>
 </head>
 
@@ -101,20 +146,25 @@ button:hover {
     <div class="radio" id="radio">Carregando...</div>
 
     <div class="musica">
-      <span id="musica">Carregando música...</span>
+      <span id="musica" class="rolar">Carregando música...</span>
     </div>
 
     <div class="ouvintes" id="ouvintes">
       👥 0 ouvintes
     </div>
 
-    <button onclick="togglePlay()" id="btn">▶️ Play</button>
+    <!-- BOTÃO NOVO -->
+    <div class="controls">
+      <div class="play-btn" onclick="togglePlay()" id="btn">
+        <div class="icon"></div>
+      </div>
+    </div>
+
   </div>
 
 </div>
 
-<!-- STREAM ATUALIZADO -->
-<audio id="audio" src="http://stm.igng.com.br:7018/stream" preload="none"></audio>
+<audio id="audio" src="http://stm.igng.com.br:7018/stream"></audio>
 
 <script>
 
@@ -125,41 +175,35 @@ let playing = false;
 function togglePlay() {
   if (playing) {
     audio.pause();
-    btn.innerText = "▶️ Play";
+    btn.classList.remove("playing");
     playing = false;
   } else {
     audio.play();
-    btn.innerText = "⏸️ Pause";
+    btn.classList.add("playing");
     playing = true;
   }
 }
 
-// API
-async function carregarDados() {
-  try {
-    const res = await fetch("https://api.allorigins.win/raw?url=http://igng.com.br/api/VG5wQmVFOUJQVDA9KzM=");
-    const text = await res.text();
+// API JSON (jQuery)
+function carregarDados() {
 
-    const parser = new DOMParser();
-    const xml = parser.parseFromString(text, "text/xml");
+  $.getJSON(
+    "https://api.allorigins.win/raw?url=http://igng.com.br/api-json/VG5wQmVFOUJQVDA9KzM=",
+    function(data) {
 
-    const get = tag => xml.getElementsByTagName(tag)[0]?.textContent || "";
+      $("#radio").text(data.titulo);
+      $("#musica").text(data.musica_atual);
+      $("#ouvintes").text("👥 " + data.ouvintes_conectados + " ouvintes");
 
-    document.getElementById("radio").innerText = get("titulo");
-    document.getElementById("musica").innerText = get("musica_atual");
-    document.getElementById("ouvintes").innerText = "👥 " + get("ouvintes_conectados") + " ouvintes";
+      if (data.capa_musica) {
+        $("#capa").css("background-image", "url(" + data.capa_musica + ")");
+      }
 
-    let capa = get("capa_musica");
-
-    if (capa) {
-      document.getElementById("capa").style.backgroundImage = `url(${capa})`;
     }
-
-  } catch (e) {
-    console.log("Erro API", e);
-  }
+  );
 }
 
+// AUTO UPDATE
 setInterval(carregarDados, 10000);
 carregarDados();
 
