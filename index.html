@@ -90,26 +90,50 @@ body {
   font-size: 18px;
 }
 
-/* MUSICA ROLANDO */
+/* 🎵 MUSICA CORRIGIDA (NUNCA SAI DO PLAYER) */
 .musica {
   width: 100%;
   overflow: hidden;
-  white-space: nowrap;
+  position: relative;
   font-size: 24px;
   font-weight: bold;
 }
 
 .musica span {
   display: inline-block;
+  white-space: nowrap;
+  padding-right: 50px;
 }
 
+/* fade nas bordas */
+.musica::before,
+.musica::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 40px;
+  height: 100%;
+  z-index: 2;
+}
+
+.musica::before {
+  left: 0;
+  background: linear-gradient(to right, rgba(0,0,0,0.9), transparent);
+}
+
+.musica::after {
+  right: 0;
+  background: linear-gradient(to left, rgba(0,0,0,0.9), transparent);
+}
+
+/* animação */
 .rolando {
-  animation: rolarTexto 10s linear infinite;
+  animation: rolarTexto linear infinite alternate;
 }
 
 @keyframes rolarTexto {
-  0% { transform: translateX(100%); }
-  100% { transform: translateX(-100%); }
+  from { transform: translateX(0); }
+  to   { transform: translateX(calc(-100% + 100%)); }
 }
 
 /* OUVINTES */
@@ -159,17 +183,19 @@ body {
 .playing .icon::before { left: 0; }
 .playing .icon::after { right: 0; }
 
-/* 🎵 NOTAS */
-.note {
+/* 🔵 BOLINHAS BRANCAS */
+.particle {
   position: fixed;
-  font-size: 18px;
+  border-radius: 50%;
   pointer-events: none;
-  animation: subir 1s linear forwards;
+  background: rgba(255,255,255,0.9);
+  box-shadow: 0 0 8px rgba(255,255,255,0.6);
+  animation: subir 1s ease-out forwards;
 }
 
 @keyframes subir {
   0% { transform: translateY(0); opacity: 1; }
-  100% { transform: translateY(-40px) scale(1.5); opacity: 0; }
+  100% { transform: translateY(-50px) scale(0.3); opacity: 0; }
 }
 
 </style>
@@ -187,8 +213,8 @@ body {
     <div class="radio" id="radio">Carregando...</div>
 
     <div class="relogio">
-      <span id="hora">00:00:00</span> • 
-      <span id="data">00/00/0000</span>
+      <span id="hora"></span> • 
+      <span id="data"></span>
     </div>
 
     <div id="liveStatus"></div>
@@ -215,6 +241,7 @@ body {
 let audio = document.getElementById("audio");
 let btn = document.getElementById("btn");
 let ultimaMusica = "";
+let ultimoTempo = 0;
 
 // botão
 audio.onplay = () => btn.classList.add("playing");
@@ -245,17 +272,22 @@ function separarMusica(texto) {
     : { artista: "AO VIVO", musica: texto };
 }
 
-// rolar música
+// música dinâmica perfeita
 function atualizarTextoMusica(texto) {
   const el = document.getElementById("musicaTexto");
   el.classList.remove("rolando");
+  el.style.animation = "";
   el.innerText = texto;
 
   setTimeout(() => {
-    if (el.scrollWidth > el.parentElement.clientWidth) {
+    const container = el.parentElement;
+
+    if (el.scrollWidth > container.clientWidth) {
+      const distancia = el.scrollWidth - container.clientWidth;
+      el.style.animation = `rolarTexto ${distancia / 30}s linear infinite alternate`;
       el.classList.add("rolando");
     }
-  }, 300);
+  }, 200);
 }
 
 // APIs
@@ -273,7 +305,7 @@ function carregarJSON() {
     .catch(() => carregarXML());
 }
 
-// XML
+// XML fallback
 function carregarXML() {
   fetch(API_XML)
     .then(r => r.text())
@@ -302,13 +334,11 @@ function processar(data) {
   document.getElementById("radio").innerText = data.titulo || "Rádio";
   document.getElementById("artista").innerText = info.artista;
   atualizarTextoMusica(info.musica);
-  document.getElementById("ouvintes").innerText = "Ouvintes" + (data.ouvintes_conectados || 0);
+  document.getElementById("ouvintes").innerText = "👥 " + (data.ouvintes_conectados || 0);
 
-  // AO VIVO
   let live = document.getElementById("liveStatus");
   live.innerHTML = data.musica_atual.includes(" - ") ? "" : '<div class="live">● AO VIVO</div>';
 
-  // capa + fundo
   if (data.capa_musica && data.capa_musica.includes("http")) {
     document.getElementById("capa").style.backgroundImage = `url(${data.capa_musica})`;
     document.getElementById("bg").style.backgroundImage = `url(${data.capa_musica})`;
@@ -319,20 +349,25 @@ function processar(data) {
 setInterval(carregarJSON, 3000);
 carregarJSON();
 
-// ♫ notas no mouse
+// partículas no mouse
 document.addEventListener("mousemove", function(e) {
-  const notas = ["♫","♪","♪","♫"];
-  const nota = document.createElement("div");
+  const agora = Date.now();
+  if (agora - ultimoTempo < 40) return;
+  ultimoTempo = agora;
 
-  nota.className = "note";
-  nota.innerText = notas[Math.floor(Math.random() * notas.length)];
+  const bolinha = document.createElement("div");
+  bolinha.className = "particle";
 
-  nota.style.left = e.clientX + "px";
-  nota.style.top = e.clientY + "px";
+  bolinha.style.left = e.clientX + "px";
+  bolinha.style.top = e.clientY + "px";
 
-  document.body.appendChild(nota);
+  let size = Math.random() * 4 + 4;
+  bolinha.style.width = size + "px";
+  bolinha.style.height = size + "px";
 
-  setTimeout(() => nota.remove(), 1000);
+  document.body.appendChild(bolinha);
+
+  setTimeout(() => bolinha.remove(), 1000);
 });
 
 </script>
