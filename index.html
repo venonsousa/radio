@@ -159,6 +159,19 @@ body {
 .playing .icon::before { left: 0; }
 .playing .icon::after { right: 0; }
 
+/* 🎵 NOTAS */
+.note {
+  position: fixed;
+  font-size: 18px;
+  pointer-events: none;
+  animation: subir 1s linear forwards;
+}
+
+@keyframes subir {
+  0% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-40px) scale(1.5); opacity: 0; }
+}
+
 </style>
 </head>
 
@@ -173,7 +186,6 @@ body {
   <div class="content">
     <div class="radio" id="radio">Carregando...</div>
 
-    <!-- RELÓGIO -->
     <div class="relogio">
       <span id="hora">00:00:00</span> • 
       <span id="data">00/00/0000</span>
@@ -212,41 +224,30 @@ function togglePlay() {
   audio.paused ? audio.play() : audio.pause();
 }
 
-// 🇧🇷 RELÓGIO
+// relógio
 function atualizarRelogio() {
   const agora = new Date();
-
-  const hora = agora.toLocaleTimeString('pt-BR', {
-    timeZone: 'America/Sao_Paulo'
-  });
-
-  const data = agora.toLocaleDateString('pt-BR', {
-    timeZone: 'America/Sao_Paulo'
-  });
-
-  document.getElementById("hora").innerText = hora;
-  document.getElementById("data").innerText = data;
+  document.getElementById("hora").innerText =
+    agora.toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+  document.getElementById("data").innerText =
+    agora.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
 }
-
 setInterval(atualizarRelogio, 1000);
 atualizarRelogio();
 
-// separar artista
+// separar música
 function separarMusica(texto) {
   if (!texto) return { artista: "Desconhecido", musica: "Sem dados" };
 
   let partes = texto.split(" - ");
-  if (partes.length >= 2) {
-    return { artista: partes[0], musica: partes.slice(1).join(" - ") };
-  }
-
-  return { artista: "AO VIVO", musica: texto };
+  return partes.length >= 2
+    ? { artista: partes[0], musica: partes.slice(1).join(" - ") }
+    : { artista: "AO VIVO", musica: texto };
 }
 
-// animação música
+// rolar música
 function atualizarTextoMusica(texto) {
   const el = document.getElementById("musicaTexto");
-
   el.classList.remove("rolando");
   el.innerText = texto;
 
@@ -272,7 +273,7 @@ function carregarJSON() {
     .catch(() => carregarXML());
 }
 
-// XML fallback
+// XML
 function carregarXML() {
   fetch(API_XML)
     .then(r => r.text())
@@ -290,11 +291,9 @@ function carregarXML() {
     });
 }
 
-// PROCESSAMENTO
+// atualizar player
 function processar(data) {
-
-  if (!data.musica_atual) return;
-  if (data.musica_atual === ultimaMusica) return;
+  if (!data.musica_atual || data.musica_atual === ultimaMusica) return;
 
   ultimaMusica = data.musica_atual;
 
@@ -303,16 +302,11 @@ function processar(data) {
   document.getElementById("radio").innerText = data.titulo || "Rádio";
   document.getElementById("artista").innerText = info.artista;
   atualizarTextoMusica(info.musica);
-  document.getElementById("ouvintes").innerText = " " + (data.ouvintes_conectados || 0);
+  document.getElementById("ouvintes").innerText = "Ouvintes" + (data.ouvintes_conectados || 0);
 
   // AO VIVO
   let live = document.getElementById("liveStatus");
-
-  if (!data.musica_atual.includes(" - ")) {
-    live.innerHTML = '<div class="live">● AO VIVO</div>';
-  } else {
-    live.innerHTML = '';
-  }
+  live.innerHTML = data.musica_atual.includes(" - ") ? "" : '<div class="live">● AO VIVO</div>';
 
   // capa + fundo
   if (data.capa_musica && data.capa_musica.includes("http")) {
@@ -324,6 +318,22 @@ function processar(data) {
 // tempo real
 setInterval(carregarJSON, 3000);
 carregarJSON();
+
+// 🎵 notas no mouse
+document.addEventListener("mousemove", function(e) {
+  const notas = ["🎵","🎶","♪","♫"];
+  const nota = document.createElement("div");
+
+  nota.className = "note";
+  nota.innerText = notas[Math.floor(Math.random() * notas.length)];
+
+  nota.style.left = e.clientX + "px";
+  nota.style.top = e.clientY + "px";
+
+  document.body.appendChild(nota);
+
+  setTimeout(() => nota.remove(), 1000);
+});
 
 </script>
 
