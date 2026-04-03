@@ -17,15 +17,17 @@ body {
   justify-content: center;
   font-family: Arial, sans-serif;
   overflow: hidden;
+  background: #000;
 }
 
 .bg {
   position: fixed;
   width: 100%;
   height: 100%;
+  background: #111;
   background-size: cover;
   background-position: center;
-  filter: blur(40px) brightness(0.5);
+  filter: blur(40px) brightness(0.4);
   transform: scale(1.2);
   z-index: -1;
   transition: 0.8s;
@@ -47,6 +49,7 @@ body {
   height: 216px;
   margin: 20px;
   border-radius: 12px;
+  background: #222;
   background-size: cover;
   background-position: center;
 }
@@ -92,7 +95,6 @@ body {
 
 .play-btn:hover {
   transform: scale(1.1);
-  background: rgba(255,255,255,0.2);
 }
 
 .icon {
@@ -118,7 +120,6 @@ body {
   width: 4px;
   height: 100%;
   background: #fff;
-  border-radius: 2px;
 }
 
 .playing .icon::before { left: 0; }
@@ -138,8 +139,8 @@ body {
   <div class="content">
     <div class="radio" id="radio">Carregando...</div>
 
-    <div class="artista" id="artista">Artista...</div>
-    <div class="musica" id="musica">Música...</div>
+    <div class="artista" id="artista">---</div>
+    <div class="musica" id="musica">---</div>
 
     <div class="ouvintes" id="ouvintes">👥 0 ouvintes</div>
 
@@ -150,48 +151,53 @@ body {
 
 </div>
 
-<!-- 🔥 STREAM HTTPS -->
 <audio id="audio" src="https://stm.igng.com.br:7018/stream"></audio>
 
 <script>
 
 let audio = document.getElementById("audio");
 let btn = document.getElementById("btn");
-let playing = false;
+
+// controle real
+audio.onplay = () => btn.classList.add("playing");
+audio.onpause = () => btn.classList.remove("playing");
 
 function togglePlay() {
-  if (playing) {
-    audio.pause();
-    btn.classList.remove("playing");
-    playing = false;
+  if (audio.paused) {
+    audio.play().catch(() => {
+      alert("Clique novamente para iniciar o áudio 🔊");
+    });
   } else {
-    audio.play();
-    btn.classList.add("playing");
-    playing = true;
+    audio.pause();
   }
 }
 
-// separar artista
+// separar artista melhor
 function separarMusica(texto) {
+  if (!texto) return { artista: "Desconhecido", musica: "Sem dados" };
+
   let partes = texto.split(" - ");
-  return {
-    artista: partes[0] || "Desconhecido",
-    musica: partes[1] || texto
-  };
+  if (partes.length >= 2) {
+    return { artista: partes[0], musica: partes.slice(1).join(" - ") };
+  }
+
+  return { artista: "Ao vivo", musica: texto };
 }
 
-// API HTTPS
+// API segura
 function carregarDados() {
   $.getJSON(
     "https://api.allorigins.win/raw?url=https://igng.com.br/api-json/VG5wQmVFOUJQVDA9KzM=",
     function(data) {
 
+      if (!data) return;
+
       let info = separarMusica(data.musica_atual);
 
-      $("#radio").text(data.titulo);
+      $("#radio").text(data.titulo || "Rádio Online");
       $("#artista").text(info.artista);
       $("#musica").text(info.musica);
-      $("#ouvintes").text("👥 " + data.ouvintes_conectados + " ouvintes");
+      $("#ouvintes").text("👥 " + (data.ouvintes_conectados || 0) + " ouvintes");
 
       if (data.capa_musica) {
         $("#capa").css("background-image", "url(" + data.capa_musica + ")");
@@ -199,9 +205,12 @@ function carregarDados() {
       }
 
     }
-  );
+  ).fail(function() {
+    console.log("Erro ao carregar API");
+  });
 }
 
+// atualizar
 setInterval(carregarDados, 10000);
 carregarDados();
 
