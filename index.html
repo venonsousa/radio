@@ -1,157 +1,169 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <title>Player da Rádio</title>
-  <style>
-    body {
-      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      font-family: 'Segoe UI', Arial, sans-serif;
-      overflow: hidden;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    .radio-player {
-      width: 770px;
-      height: 433px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 20px;
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      color: #fff;
-      padding: 20px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      z-index: 10;
-    }
+<title>Player Rádio Glass</title>
 
-    .header h2 {
-      font-size: 1.6em;
-      margin-bottom: 8px;
-    }
+<style>
+body {
+  margin: 0;
+  height: 100vh;
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Arial, sans-serif;
+}
 
-    .content {
-      display: flex;
-      align-items: center;
-    }
+.player {
+  width: 767px;
+  height: 410px;
+  backdrop-filter: blur(15px);
+  background: rgba(255,255,255,0.08);
+  border-radius: 20px;
+  box-shadow: 0 0 30px rgba(0,0,0,0.4);
+  overflow: hidden;
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.2);
+  display: flex;
+}
 
-    .album-cover {
-      width: 200px;
-      height: 200px;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-    }
+.capa {
+  width: 198px;
+  height: 216px;
+  background-size: cover;
+  background-position: center;
+  margin: 20px;
+  border-radius: 10px;
+}
 
-    .track-info {
-      margin-left: 20px;
-      font-size: 1.1em;
-    }
+.content {
+  flex: 1;
+  padding: 20px;
+}
 
-    .track-info p {
-      margin: 6px 0;
-    }
+.radio {
+  font-size: 18px;
+  opacity: 0.8;
+}
 
-    .player-audio {
-      margin-top: 20px;
-    }
+.musica {
+  font-size: 22px;
+  font-weight: bold;
+  margin: 15px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  position: relative;
+}
 
-    audio {
-      width: 100%;
-    }
+.musica span {
+  display: inline-block;
+  padding-left: 100%;
+  animation: scroll 10s linear infinite;
+}
 
-    /* Notas musicais menores e sobre o player */
-    .note {
-      position: absolute;
-      font-size: 14px;
-      color: #ffcc00;
-      pointer-events: none;
-      animation: floatUp 1.2s ease-out forwards;
-      z-index: 9999;
-    }
+@keyframes scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-100%); }
+}
 
-    @keyframes floatUp {
-      0% { transform: translateY(0); opacity: 1; }
-      100% { transform: translateY(-30px); opacity: 0; }
-    }
-  </style>
+.ouvintes {
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+button:hover {
+  background: rgba(255,255,255,0.3);
+}
+</style>
 </head>
+
 <body>
-  <div class="radio-player">
-    <div class="header">
-      <h2 id="radio-name"></h2>
-      <p>Ouvintes: <span id="listeners"></span></p>
-      <p>Bitrate: <span id="bitrate"></span></p>
+
+<div class="player">
+
+  <div class="capa" id="capa"></div>
+
+  <div class="content">
+    <div class="radio" id="radio">Carregando...</div>
+
+    <div class="musica">
+      <span id="musica">Carregando música...</span>
     </div>
 
-    <div class="content">
-      <img id="album-cover" alt="Capa do Álbum" class="album-cover">
-      <div class="track-info">
-        <p><strong>Música atual:</strong> <span id="song"></span></p>
-        <p><strong>Gênero:</strong> <span id="genre"></span></p>
-      </div>
+    <div class="ouvintes" id="ouvintes">
+      👥 0 ouvintes
     </div>
 
-    <div class="player-audio">
-      <audio id="radio-stream" controls autoplay>
-        <source src="https://stm.igng.com.br:7018/stream" type="audio/mpeg">
-        Seu navegador não suporta áudio HTML5.
-      </audio>
-    </div>
+    <button onclick="togglePlay()" id="btn">▶️ Play</button>
   </div>
 
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script>
-    // 1. Puxar dados da API da rádio
-    $.getJSON('http://igng.com.br/api-json/VG5wQmVFOUJQVDA9KzM=', function(data) {
-      console.log(data); // veja os campos no console
+</div>
 
-      $("#radio-name").text(data.titulo);
-      $("#listeners").text(data.ouvintes_conectados);
-      $("#bitrate").text(data.plano_bitrate + " kbps");
-      $("#song").text(data.musica_atual);
-      $("#genre").text(data.genero);
+<!-- STREAM ATUALIZADO -->
+<audio id="audio" src="http://stm.igng.com.br:7018/stream" preload="none"></audio>
 
-      // 2. Mostrar capa da API ou buscar na Apple Music
-      if (data.capa_musica) {
-        $("#album-cover").attr("src", data.capa_musica);
-      } else {
-        const developerToken = "SEU_APPLE_DEVELOPER_TOKEN"; // substitua pelo seu token
-        const musica = data.musica_atual;
+<script>
 
-        fetch(`https://api.music.apple.com/v1/catalog/br/search?term=${encodeURIComponent(musica)}&types=songs`, {
-          headers: { Authorization: `Bearer ${developerToken}` }
-        })
-        .then(res => res.json())
-        .then(result => {
-          if (result.results.songs.data.length > 0) {
-            const song = result.results.songs.data[0];
-            const albumCover = song.attributes.artwork.url
-              .replace('{w}', '300')
-              .replace('{h}', '300');
-            $("#album-cover").attr("src", albumCover);
-          }
-        });
-      }
-    });
+let audio = document.getElementById("audio");
+let btn = document.getElementById("btn");
+let playing = false;
 
-    // 3. Efeito de notas musicais no cursor
-    document.addEventListener("mousemove", function(e) {
-      const note = document.createElement("div");
-      note.className = "note";
-      note.style.left = e.pageX + "px";
-      note.style.top = e.pageY + "px";
-      note.textContent = "♪";
-      document.body.appendChild(note);
+function togglePlay() {
+  if (playing) {
+    audio.pause();
+    btn.innerText = "▶️ Play";
+    playing = false;
+  } else {
+    audio.play();
+    btn.innerText = "⏸️ Pause";
+    playing = true;
+  }
+}
 
-      setTimeout(() => { note.remove(); }, 1200);
-    });
-  </script>
+// API
+async function carregarDados() {
+  try {
+    const res = await fetch("https://api.allorigins.win/raw?url=http://igng.com.br/api/VG5wQmVFOUJQVDA9KzM=");
+    const text = await res.text();
+
+    const parser = new DOMParser();
+    const xml = parser.parseFromString(text, "text/xml");
+
+    const get = tag => xml.getElementsByTagName(tag)[0]?.textContent || "";
+
+    document.getElementById("radio").innerText = get("titulo");
+    document.getElementById("musica").innerText = get("musica_atual");
+    document.getElementById("ouvintes").innerText = "👥 " + get("ouvintes_conectados") + " ouvintes";
+
+    let capa = get("capa_musica");
+
+    if (capa) {
+      document.getElementById("capa").style.backgroundImage = `url(${capa})`;
+    }
+
+  } catch (e) {
+    console.log("Erro API", e);
+  }
+}
+
+setInterval(carregarDados, 10000);
+carregarDados();
+
+</script>
+
 </body>
 </html>
