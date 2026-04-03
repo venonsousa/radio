@@ -3,9 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Player Rádio ULTRA MASTER</title>
-
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
@@ -75,7 +73,7 @@ body {
 /* ARTISTA */
 .artista { margin-top: 10px; }
 
-/* 🎵 MUSICA */
+/* MUSICA */
 .musica {
   width: 493px;
   overflow: hidden;
@@ -83,14 +81,11 @@ body {
   font-size: 24px;
   font-weight: bold;
 }
-
 .musica span {
   white-space: nowrap;
   display: inline-block;
   padding-right: 60px;
 }
-
-/* fade */
 .musica::before,
 .musica::after {
   content: "";
@@ -99,26 +94,10 @@ body {
   width: 30px;
   height: 100%;
 }
-
-.musica::before {
-  left: 0;
-  background: linear-gradient(to right, #000, transparent);
-}
-
-.musica::after {
-  right: 0;
-  background: linear-gradient(to left, #000, transparent);
-}
-
-/* animação */
-.rolando {
-  animation: rolarTexto linear infinite;
-}
-
-@keyframes rolarTexto {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-100%); }
-}
+.musica::before { left: 0; background: linear-gradient(to right, #000, transparent);}
+.musica::after { right: 0; background: linear-gradient(to left, #000, transparent);}
+.rolando { animation: rolarTexto linear infinite; }
+@keyframes rolarTexto { from { transform: translateX(0);} to { transform: translateX(-100%); }}
 
 /* BOTÃO */
 .play-btn {
@@ -135,7 +114,6 @@ body {
   cursor: pointer;
   transition: 0.3s;
 }
-
 .play-btn:hover { transform: scale(1.1); }
 
 /* PLAY */
@@ -154,7 +132,6 @@ body {
   border: none;
   position: relative;
 }
-
 .playing .icon::before,
 .playing .icon::after {
   content: "";
@@ -163,17 +140,15 @@ body {
   height: 100%;
   background: #fff;
 }
-
 .playing .icon::before { left: 0; }
 .playing .icon::after { right: 0; }
 
-/* REDES */
+/* REDES SOCIAIS */
 .redes {
   margin-top: 15px;
   display: flex;
   gap: 10px;
 }
-
 .redes a {
   width: 35px;
   height: 35px;
@@ -196,10 +171,7 @@ body {
   pointer-events: none;
   animation: subir 1s forwards;
 }
-
-@keyframes subir {
-  to { transform: translateY(-40px); opacity: 0; }
-}
+@keyframes subir { to { transform: translateY(-40px); opacity: 0; } }
 
 </style>
 </head>
@@ -209,70 +181,49 @@ body {
 <div class="bg" id="bg"></div>
 
 <div class="player">
-
   <div class="capa" id="capa"></div>
-
   <div class="content">
     <div id="radio">Carregando...</div>
-
     <div class="relogio">
       <span id="hora"></span> • <span id="data"></span>
     </div>
-
     <div id="liveStatus"></div>
-
     <div class="artista" id="artista"></div>
-
     <div class="musica">
       <span id="musicaTexto"></span>
     </div>
-
     <div id="ouvintes"></div>
-
-    <!-- BOTÃO -->
     <div class="play-btn" id="btn">
       <div class="icon"></div>
     </div>
-
-    <!-- REDES -->
     <div class="redes">
       <a href="#"><i class="fab fa-facebook-f"></i></a>
       <a href="#"><i class="fab fa-instagram"></i></a>
       <a href="#"><i class="fas fa-globe"></i></a>
     </div>
-
   </div>
-
 </div>
 
-<audio id="audio" src="https://stm.igng.com.br:7018/stream"></audio>
+<audio id="audio" preload="none">
+  <source src="https://stm.igng.com.br:7018/stream" type="audio/mpeg">
+</audio>
 
 <script>
-
 const audio = document.getElementById("audio");
 const btn = document.getElementById("btn");
-
 let ultima = "";
 let ultimoTempo = 0;
 
-// BOTÃO
-btn.addEventListener("click", () => {
-  audio.paused ? audio.play() : audio.pause();
-});
-
-audio.addEventListener("play", () => {
-  btn.classList.add("playing");
-});
-
-audio.addEventListener("pause", () => {
-  btn.classList.remove("playing");
-});
+// BOTÃO PLAY/PAUSE
+btn.addEventListener("click", () => { audio.paused ? audio.play() : audio.pause(); });
+audio.addEventListener("play", () => btn.classList.add("playing"));
+audio.addEventListener("pause", () => btn.classList.remove("playing"));
 
 // AUTOPLAY
 window.addEventListener("load", () => {
   audio.volume = 1;
   let p = audio.play();
-  if (p !== undefined) p.catch(()=>{});
+  if(p !== undefined) p.catch(()=>{});
 });
 
 // RELÓGIO
@@ -282,16 +233,15 @@ setInterval(()=>{
   data.innerText = d.toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo'});
 },1000);
 
-// SEPARAR
+// SEPARAR ARTISTA E MUSICA
 function separar(t){
   let p = t.split(" - ");
   return p.length>=2 ? {a:p[0],m:p.slice(1).join(" - ")} : {a:"AO VIVO",m:t};
 }
 
-// MÚSICA
+// ROLAR NOME DA MUSICA
 function setMusica(txt){
   let el = document.getElementById("musicaTexto");
-
   el.classList.remove("rolando");
   el.style.animation = "none";
   el.innerText = txt;
@@ -299,61 +249,52 @@ function setMusica(txt){
   setTimeout(() => {
     const limite = 493;
     const largura = el.scrollWidth;
-
-    if (largura > limite) {
-      const dist = largura - limite;
+    if(largura > limite){
       el.offsetHeight;
-      el.style.animation = `rolarTexto ${dist / 40}s linear infinite`;
+      el.style.animation = `rolarTexto ${ (largura - limite) / 40 }s linear infinite`;
       el.classList.add("rolando");
     }
   }, 200);
 }
 
-// API
+// CARREGAR API
 function carregar(){
 fetch("https://api.codetabs.com/v1/proxy?quest=https://igng.com.br/api-json/VG5wQmVFOUJQVDA9KzM=")
 .then(r=>r.json())
 .then(d=>{
+  if(!d.musica_atual || d.musica_atual==ultima) return;
+  ultima=d.musica_atual;
+  let info = separar(d.musica_atual);
 
-if(!d.musica_atual || d.musica_atual==ultima)return;
+  radio.innerText = d.titulo;
+  artista.innerText = info.a;
+  setMusica(info.m);
+  ouvintes.innerText = "👥 "+d.ouvintes_conectados;
+  liveStatus.innerHTML = d.musica_atual.includes(" - ") ? "" : "<div class='live'>● AO VIVO</div>";
 
-ultima=d.musica_atual;
-
-let info=separar(d.musica_atual);
-
-radio.innerText=d.titulo;
-artista.innerText=info.a;
-setMusica(info.m);
-ouvintes.innerText="👥 "+d.ouvintes_conectados;
-
-liveStatus.innerHTML=d.musica_atual.includes(" - ")?"":"<div class='live'>● AO VIVO</div>";
-
-if(d.capa_musica){
-  let img = d.capa_musica + "?t=" + Date.now();
-  capa.style.backgroundImage=`url(${img})`;
-  bg.style.backgroundImage=`url(${img})`;
-}
-
+  if(d.capa_musica){
+    let img = d.capa_musica + "?t=" + Date.now();
+    capa.style.backgroundImage=`url(${img})`;
+    bg.style.backgroundImage=`url(${img})`;
+  }
 });
 }
 
 setInterval(carregar,3000);
 carregar();
 
-// PARTÍCULAS
-document.addEventListener("mousemove",e=>{
-let agora=Date.now();
-if(agora-ultimoTempo<40)return;
-ultimoTempo=agora;
-
-let p=document.createElement("div");
-p.className="particle";
-p.style.left=e.clientX+"px";
-p.style.top=e.clientY+"px";
-document.body.appendChild(p);
-setTimeout(()=>p.remove(),1000);
+// PARTICULAS MOUSE
+document.addEventListener("mousemove", e=>{
+  let agora=Date.now();
+  if(agora-ultimoTempo<40) return;
+  ultimoTempo=agora;
+  let p=document.createElement("div");
+  p.className="particle";
+  p.style.left=e.clientX+"px";
+  p.style.top=e.clientY+"px";
+  document.body.appendChild(p);
+  setTimeout(()=>p.remove(),1000);
 });
-
 </script>
 
 </body>
