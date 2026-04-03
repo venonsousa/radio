@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Radio Player PRO</title>
+
+<link rel="stylesheet" href="bootstrap.min.css">
+<link rel="stylesheet" href="animate.css">
+<link rel="stylesheet" href="font-awesome.min.css">
+
+<style>
+body {
+    background: #000;
+    color: #fff;
+    font-family: Arial;
+    overflow-x: hidden;
+}
+
+#bgCover {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    filter: blur(30px);
+    opacity: 0.3;
+    z-index: -1;
+}
+
+.player-box {
+    margin-top: 50px;
+    background: rgba(0,0,0,0.7);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 0 30px rgba(0,0,0,0.8);
+}
+
+#currentCoverArt {
+    width: 100%;
+    height: 250px;
+    border-radius: 15px;
+    background-size: cover;
+    background-position: center;
+}
+
+.current-song, .current-artist {
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+#playerButton {
+    font-size: 70px;
+    cursor: pointer;
+}
+
+.volume-control {
+    margin-top: 20px;
+}
+
+input[type=range] {
+    width: 100%;
+}
+</style>
+</head>
+
+<body>
+
+<div id="bgCover"></div>
+
+<div class="container text-center">
+    <div class="row justify-content-center">
+        <div class="col-md-6 player-box animated fadeIn">
+
+            <div id="currentCoverArt" class="animated pulse infinite"></div>
+
+            <h2 id="currentSong" class="current-song mt-3">Carregando...</h2>
+            <h4 id="currentArtist" class="current-artist">...</h4>
+
+            <i id="playerButton" class="fa fa-play-circle mt-3" onclick="togglePlay()"></i>
+
+            <div class="volume-control">
+                <input type="range" id="volume" min="0" max="100" value="80">
+                <p>Volume: <span id="volIndicator">80</span>%</p>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery.marquee@1.6.0/jquery.marquee.min.js"></script>
+
+<script>
+// CONFIG
+const streamURL = "https://stm.igng.com.br:7018";
+const apiURL = "http://igng.com.br/api/VG5wQmVFOUJQVDA9KzM=";
+
+let audio = new Audio(streamURL);
+audio.volume = 0.8;
+
+// AUTO PLAY
+window.onload = () => {
+    togglePlay();
+    getData();
+    setInterval(getData, 10000);
+};
+
+// PLAY / PAUSE
+function togglePlay() {
+    let btn = document.getElementById("playerButton");
+
+    if (audio.paused) {
+        audio.play();
+        btn.classList.replace("fa-play-circle","fa-pause-circle");
+    } else {
+        audio.pause();
+        btn.classList.replace("fa-pause-circle","fa-play-circle");
+    }
+}
+
+// VOLUME
+const volume = document.getElementById("volume");
+const volIndicator = document.getElementById("volIndicator");
+
+volume.addEventListener("input", () => {
+    audio.volume = volume.value / 100;
+    volIndicator.innerText = volume.value;
+});
+
+// API
+function getData() {
+    fetch(apiURL)
+    .then(res => res.json())
+    .then(data => {
+
+        let song = data.currentSong || "Sem música";
+        let artist = data.currentArtist || "Sem artista";
+
+        $("#currentSong").text(song).marquee('destroy').marquee();
+        $("#currentArtist").text(artist).marquee('destroy').marquee();
+
+        buscarCapa(artist, song);
+    });
+}
+
+// CAPA APPLE
+function buscarCapa(artist, song) {
+    let query = encodeURIComponent(artist + " " + song);
+
+    fetch(`https://itunes.apple.com/search?term=${query}&limit=1`)
+    .then(res => res.json())
+    .then(data => {
+
+        if (data.results.length > 0) {
+            let cover = data.results[0].artworkUrl100.replace("100x100","500x500");
+
+            document.getElementById("currentCoverArt").style.backgroundImage = `url(${cover})`;
+            document.getElementById("bgCover").style.backgroundImage = `url(${cover})`;
+        }
+    });
+}
+
+// TEXTO CORRENDO
+$(function(){
+    $('.current-song').marquee({ duration: 8000, duplicated: true });
+    $('.current-artist').marquee({ duration: 10000, duplicated: true });
+});
+</script>
+
+</body>
+</html>
