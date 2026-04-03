@@ -6,8 +6,6 @@
 
 <title>Player Rádio ULTRA</title>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
 <style>
 body {
   margin: 0;
@@ -15,34 +13,36 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: Arial, sans-serif;
+  font-family: Arial;
   background: #000;
+  overflow: hidden;
 }
 
+/* FUNDO */
 .bg {
   position: fixed;
   width: 100%;
   height: 100%;
-  background: #111;
-  background-size: cover;
-  background-position: center;
   filter: blur(40px) brightness(0.4);
   transform: scale(1.2);
+  background-size: cover;
   z-index: -1;
   transition: 0.8s;
 }
 
+/* PLAYER */
 .player {
   width: 767px;
   height: 410px;
+  display: flex;
   backdrop-filter: blur(20px);
   background: rgba(255,255,255,0.08);
   border-radius: 20px;
-  display: flex;
-  color: #fff;
   border: 1px solid rgba(255,255,255,0.2);
+  color: #fff;
 }
 
+/* CAPA */
 .capa {
   width: 198px;
   height: 216px;
@@ -51,17 +51,46 @@ body {
   background: #222;
   background-size: cover;
   background-position: center;
+  transition: 0.5s;
 }
 
+/* CONTEÚDO */
 .content {
-  flex: 1;
   padding: 20px;
+  flex: 1;
 }
 
 .radio { opacity: 0.8; }
-.artista { font-size: 18px; margin-top: 10px; }
-.musica { font-size: 24px; font-weight: bold; }
-.ouvintes { margin-top: 10px; }
+
+/* AO VIVO */
+.live {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 5px 10px;
+  background: red;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  50% { opacity: 0.5; }
+}
+
+.artista {
+  margin-top: 10px;
+  font-size: 18px;
+}
+
+.musica {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.ouvintes {
+  margin-top: 10px;
+}
 
 /* BOTÃO */
 .play-btn {
@@ -84,7 +113,6 @@ body {
   border-left: 14px solid #fff;
   border-top: 9px solid transparent;
   border-bottom: 9px solid transparent;
-  transition: 0.3s;
 }
 
 .playing .icon {
@@ -119,8 +147,12 @@ body {
 
   <div class="content">
     <div class="radio" id="radio">Carregando...</div>
+
+    <div id="liveStatus"></div>
+
     <div class="artista" id="artista">---</div>
     <div class="musica" id="musica">---</div>
+
     <div class="ouvintes" id="ouvintes">👥 0</div>
 
     <div class="play-btn" onclick="togglePlay()" id="btn">
@@ -136,7 +168,9 @@ body {
 
 let audio = document.getElementById("audio");
 let btn = document.getElementById("btn");
+let ultimaMusica = "";
 
+// botão
 audio.onplay = () => btn.classList.add("playing");
 audio.onpause = () => btn.classList.remove("playing");
 
@@ -147,63 +181,81 @@ function togglePlay() {
 // separar artista
 function separarMusica(texto) {
   if (!texto) return { artista: "Desconhecido", musica: "Sem dados" };
-  let p = texto.split(" - ");
-  return p.length >= 2 
-    ? { artista: p[0], musica: p.slice(1).join(" - ") }
-    : { artista: "Ao vivo", musica: texto };
+
+  let partes = texto.split(" - ");
+  if (partes.length >= 2) {
+    return { artista: partes[0], musica: partes.slice(1).join(" - ") };
+  }
+
+  return { artista: "AO VIVO", musica: texto };
 }
 
-// 👉 JSON principal
+// APIs
+const API_JSON = "https://api.codetabs.com/v1/proxy?quest=https://igng.com.br/api-json/VG5wQmVFOUJQVDA9KzM=";
+const API_XML  = "https://api.codetabs.com/v1/proxy?quest=https://igng.com.br/api/NzAxOCsx";
+
+// JSON
 function carregarJSON() {
-  $.getJSON(
-    "https://api.allorigins.win/raw?url=https://igng.com.br/api-json/VG5wQmVFOUJQVDA9KzM=",
-    function(data) {
-      atualizarPlayer(data);
-    }
-  ).fail(function() {
-    console.log("JSON falhou → usando XML");
-    carregarXML();
-  });
+  fetch(API_JSON)
+    .then(r => r.json())
+    .then(data => {
+      if (!data || !data.musica_atual) throw "erro";
+      processar(data);
+    })
+    .catch(() => carregarXML());
 }
 
-// 👉 XML fallback
+// XML fallback
 function carregarXML() {
-  fetch("https://api.allorigins.win/raw?url=https://igng.com.br/api/NzAxOCsx")
+  fetch(API_XML)
     .then(r => r.text())
     .then(str => {
       let xml = new DOMParser().parseFromString(str, "text/xml");
 
       let data = {
-        titulo: xml.querySelector("titulo")?.textContent,
-        musica_atual: xml.querySelector("musica_atual")?.textContent,
-        ouvintes_conectados: xml.querySelector("ouvintes_conectados")?.textContent,
-        capa_musica: xml.querySelector("capa_musica")?.textContent
+        titulo: xml.getElementsByTagName("titulo")[0]?.textContent,
+        musica_atual: xml.getElementsByTagName("musica_atual")[0]?.textContent,
+        ouvintes_conectados: xml.getElementsByTagName("ouvintes_conectados")[0]?.textContent,
+        capa_musica: xml.getElementsByTagName("capa_musica")[0]?.textContent
       };
 
-      atualizarPlayer(data);
-    })
-    .catch(() => console.log("XML também falhou"));
+      processar(data);
+    });
 }
 
-// atualizar UI
-function atualizarPlayer(data) {
-  if (!data) return;
+// PROCESSAMENTO
+function processar(data) {
+
+  if (!data.musica_atual) return;
+  if (data.musica_atual === ultimaMusica) return;
+
+  ultimaMusica = data.musica_atual;
 
   let info = separarMusica(data.musica_atual);
 
-  $("#radio").text(data.titulo || "Rádio");
-  $("#artista").text(info.artista);
-  $("#musica").text(info.musica);
-  $("#ouvintes").text("👥 " + (data.ouvintes_conectados || 0));
+  document.getElementById("radio").innerText = data.titulo || "Rádio";
+  document.getElementById("artista").innerText = info.artista;
+  document.getElementById("musica").innerText = info.musica;
+  document.getElementById("ouvintes").innerText = "👥 " + (data.ouvintes_conectados || 0);
 
-  if (data.capa_musica) {
-    $("#capa").css("background-image", "url(" + data.capa_musica + ")");
-    $("#bg").css("background-image", "url(" + data.capa_musica + ")");
+  // 🔥 DETECTAR AO VIVO
+  let live = document.getElementById("liveStatus");
+
+  if (!data.musica_atual.includes(" - ")) {
+    live.innerHTML = '<div class="live">● AO VIVO</div>';
+  } else {
+    live.innerHTML = '';
+  }
+
+  // capa + fundo
+  if (data.capa_musica && data.capa_musica.includes("http")) {
+    document.getElementById("capa").style.backgroundImage = `url(${data.capa_musica})`;
+    document.getElementById("bg").style.backgroundImage = `url(${data.capa_musica})`;
   }
 }
 
-// loop
-setInterval(carregarJSON, 10000);
+// tempo real
+setInterval(carregarJSON, 3000);
 carregarJSON();
 
 </script>
