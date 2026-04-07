@@ -1,377 +1,275 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+  <head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+    <title>Ruby on Rails: Welcome aboard</title>
+    <style type="text/css" media="screen">
+      body {
+        margin: 0;
+        margin-bottom: 25px;
+        padding: 0;
+        background-color: #f0f0f0;
+        font-family: "Lucida Grande", "Bitstream Vera Sans", "Verdana";
+        font-size: 13px;
+        color: #333;
+      }
+      
+      h1 {
+        font-size: 28px;
+        color: #000;
+      }
+      
+      a  {color: #03c}
+      a:hover {
+        background-color: #03c;
+        color: white;
+        text-decoration: none;
+      }
+      
+      
+      #page {
+        background-color: #f0f0f0;
+        width: 750px;
+        margin: 0;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      
+      #content {
+        float: left;
+        background-color: white;
+        border: 3px solid #aaa;
+        border-top: none;
+        padding: 25px;
+        width: 500px;
+      }
+      
+      #sidebar {
+        float: right;
+        width: 175px;
+      }
 
-<title>Player Rádio ULTRA MASTER</title>
+      #footer {
+        clear: both;
+      }
+      
 
-<style>
-body {
-  margin: 0;
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: Arial;
-  background: #000;
-  overflow: hidden;
-}
+      #header, #about, #getting-started {
+        padding-left: 75px;
+        padding-right: 30px;
+      }
 
-/* FUNDO */
-.bg {
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  filter: blur(40px) brightness(0.4);
-  transform: scale(1.2);
-  background-size: cover;
-  z-index: -1;
-}
 
-/* PLAYER */
-.player {
-  width: 767px;
-  height: 410px;
-  display: flex;
-  backdrop-filter: blur(20px);
-  background: rgba(255,255,255,0.08);
-  border-radius: 20px;
-  border: 1px solid rgba(255,255,255,0.2);
-  color: #fff;
-}
+      #header {
+        background-image: url("images/rails.png");
+        background-repeat: no-repeat;
+        background-position: top left;
+        height: 64px;
+      }
+      #header h1, #header h2 {margin: 0}
+      #header h2 {
+        color: #888;
+        font-weight: normal;
+        font-size: 16px;
+      }
+      
+      
+      #about h3 {
+        margin: 0;
+        margin-bottom: 10px;
+        font-size: 14px;
+      }
+      
+      #about-content {
+        background-color: #ffd;
+        border: 1px solid #fc0;
+        margin-left: -11px;
+      }
+      #about-content table {
+        margin-top: 10px;
+        margin-bottom: 10px;
+        font-size: 11px;
+        border-collapse: collapse;
+      }
+      #about-content td {
+        padding: 10px;
+        padding-top: 3px;
+        padding-bottom: 3px;
+      }
+      #about-content td.name  {color: #555}
+      #about-content td.value {color: #000}
+      
+      #about-content.failure {
+        background-color: #fcc;
+        border: 1px solid #f00;
+      }
+      #about-content.failure p {
+        margin: 0;
+        padding: 10px;
+      }
+      
+      
+      #getting-started {
+        border-top: 1px solid #ccc;
+        margin-top: 25px;
+        padding-top: 15px;
+      }
+      #getting-started h1 {
+        margin: 0;
+        font-size: 20px;
+      }
+      #getting-started h2 {
+        margin: 0;
+        font-size: 14px;
+        font-weight: normal;
+        color: #333;
+        margin-bottom: 25px;
+      }
+      #getting-started ol {
+        margin-left: 0;
+        padding-left: 0;
+      }
+      #getting-started li {
+        font-size: 18px;
+        color: #888;
+        margin-bottom: 25px;
+      }
+      #getting-started li h2 {
+        margin: 0;
+        font-weight: normal;
+        font-size: 18px;
+        color: #333;
+      }
+      #getting-started li p {
+        color: #555;
+        font-size: 13px;
+      }
+      
+      
+      #search {
+        margin: 0;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        font-size: 11px;
+      }
+      #search input {
+        font-size: 11px;
+        margin: 2px;
+      }
+      #search-text {width: 170px}
+      
+      
+      #sidebar ul {
+        margin-left: 0;
+        padding-left: 0;
+      }
+      #sidebar ul h3 {
+        margin-top: 25px;
+        font-size: 16px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #ccc;
+      }
+      #sidebar li {
+        list-style-type: none;
+      }
+      #sidebar ul.links li {
+        margin-bottom: 5px;
+      }
+      
+    </style>
+    <script type="text/javascript" src="javascripts/prototype.js"></script>
+    <script type="text/javascript" src="javascripts/effects.js"></script>
+    <script type="text/javascript">
+      function about() {
+        if (Element.empty('about-content')) {
+          new Ajax.Updater('about-content', 'rails/info/properties', {
+            method:     'get',
+            onFailure:  function() {Element.classNames('about-content').add('failure')},
+            onComplete: function() {new Effect.BlindDown('about-content', {duration: 0.25})}
+          });
+        } else {
+          new Effect[Element.visible('about-content') ? 
+            'BlindUp' : 'BlindDown']('about-content', {duration: 0.25});
+        }
+      }
+      
+      window.onload = function() {
+        $('search-text').value = '';
+        $('search').onsubmit = function() {
+          $('search-text').value = 'site:rubyonrails.org ' + $F('search-text');
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div id="page">
+      <div id="sidebar">
+        <ul id="sidebar-items">
+          <li>
+            <form id="search" action="http://www.google.com/search" method="get">
+              <input type="hidden" name="hl" value="en" />
+              <input type="text" id="search-text" name="q" value="site:rubyonrails.org " />
+              <input type="submit" value="Search" /> the Rails site
+            </form>
+          </li>
+        
+          <li>
+            <h3>Join the community</h3>
+            <ul class="links">
+              <li><a href="http://www.rubyonrails.org/">Ruby on Rails</a></li>
+              <li><a href="http://weblog.rubyonrails.org/">Official weblog</a></li>
+              <li><a href="http://wiki.rubyonrails.org/">Wiki</a></li>
+            </ul>
+          </li>
+          
+          <li>
+            <h3>Browse the documentation</h3>
+            <ul class="links">
+              <li><a href="http://api.rubyonrails.org/">Rails API</a></li>
+              <li><a href="http://stdlib.rubyonrails.org/">Ruby standard library</a></li>
+              <li><a href="http://corelib.rubyonrails.org/">Ruby core</a></li>
+              <li><a href="http://guides.rubyonrails.org/">Rails Guides</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
 
-/* CAPA */
-.capa {
-  width: 198px;
-  height: 216px;
-  margin: 20px;
-  border-radius: 12px;
-  background: #222;
-  background-size: cover;
-  background-position: center;
-}
+      <div id="content">
+        <div id="header">
+          <h1>Welcome aboard</h1>
+          <h2>You&rsquo;re riding Ruby on Rails!</h2>
+        </div>
 
-/* CONTEÚDO */
-.content {
-  padding: 20px;
-  flex: 1;
-}
+        <div id="about">
+          <h3><a href="rails/info/properties" onclick="about(); return false">About your application&rsquo;s environment</a></h3>
+          <div id="about-content" style="display: none"></div>
+        </div>
+        
+        <div id="getting-started">
+          <h1>Getting started</h1>
+          <h2>Here&rsquo;s how to get rolling:</h2>
+          
+          <ol>          
+            <li>
+              <h2>Use <tt>script/generate</tt> to create your models and controllers</h2>
+              <p>To see all available options, run it without parameters.</p>
+            </li>
+            
+            <li>
+              <h2>Set up a default route and remove or rename this file</h2>
+              <p>Routes are set up in config/routes.rb.</p>
+            </li>
 
-.radio { opacity: 0.8; }
-
-/* RELÓGIO */
-.relogio {
-  margin-top: 5px;
-  font-size: 14px;
-  opacity: 0.8;
-}
-
-/* AO VIVO */
-.live {
-  display: inline-block;
-  margin-top: 10px;
-  padding: 5px 10px;
-  background: red;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: bold;
-  animation: blink 1s infinite;
-}
-
-@keyframes blink {
-  50% { opacity: 0.5; }
-}
-
-/* ARTISTA */
-.artista {
-  margin-top: 10px;
-  font-size: 18px;
-}
-
-/* 🎵 MUSICA LIMITADA */
-.musica {
-  width: 486px;
-  max-width: 486px;
-  overflow: hidden;
-  position: relative;
-  font-size: 24px;
-  font-weight: bold;
-}
-
-.musica span {
-  display: inline-block;
-  white-space: nowrap;
-  padding-right: 50px;
-}
-
-/* FADE */
-.musica::before,
-.musica::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  width: 40px;
-  height: 100%;
-  z-index: 2;
-}
-
-.musica::before {
-  left: 0;
-  background: linear-gradient(to right, rgba(0,0,0,0.9), transparent);
-}
-
-.musica::after {
-  right: 0;
-  background: linear-gradient(to left, rgba(0,0,0,0.9), transparent);
-}
-
-/* ANIMAÇÃO */
-.rolando {
-  animation: rolarTexto linear infinite alternate;
-}
-
-@keyframes rolarTexto {
-  from { transform: translateX(0); }
-  to   { transform: translateX(calc(-100% + 486px)); }
-}
-
-/* OUVINTES */
-.ouvintes {
-  margin-top: 10px;
-}
-
-/* BOTÃO */
-.play-btn {
-  width: 60px;
-  height: 60px;
-  margin-top: 20px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.1);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255,255,255,0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-
-.icon {
-  width: 0;
-  height: 0;
-  border-left: 14px solid #fff;
-  border-top: 9px solid transparent;
-  border-bottom: 9px solid transparent;
-}
-
-.playing .icon {
-  width: 14px;
-  height: 18px;
-  border: none;
-  position: relative;
-}
-
-.playing .icon::before,
-.playing .icon::after {
-  content: "";
-  position: absolute;
-  width: 4px;
-  height: 100%;
-  background: #fff;
-}
-
-.playing .icon::before { left: 0; }
-.playing .icon::after { right: 0; }
-
-/* 🔵 PARTÍCULAS */
-.particle {
-  position: fixed;
-  border-radius: 50%;
-  pointer-events: none;
-  background: rgba(255,255,255,0.9);
-  box-shadow: 0 0 8px rgba(255,255,255,0.6);
-  animation: subir 1s ease-out forwards;
-}
-
-@keyframes subir {
-  0% { transform: translateY(0); opacity: 1; }
-  100% { transform: translateY(-50px) scale(0.3); opacity: 0; }
-}
-
-</style>
-</head>
-
-<body>
-
-<div class="bg" id="bg"></div>
-
-<div class="player">
-
-  <div class="capa" id="capa"></div>
-
-  <div class="content">
-    <div class="radio" id="radio">Carregando...</div>
-
-    <div class="relogio">
-      <span id="hora"></span> • 
-      <span id="data"></span>
+            <li>
+              <h2>Create your database</h2>
+              <p>Run <tt>rake db:migrate</tt> to create your database. If you're not using SQLite (the default), edit <tt>config/database.yml</tt> with your username and password.</p>
+            </li>
+          </ol>
+        </div>
+      </div>
+      
+      <div id="footer">&nbsp;</div>
     </div>
-
-    <div id="liveStatus"></div>
-
-    <div class="artista" id="artista">---</div>
-
-    <div class="musica">
-      <span id="musicaTexto">---</span>
-    </div>
-
-    <div class="ouvintes" id="ouvintes">👥 0</div>
-
-    <div class="play-btn" onclick="togglePlay()" id="btn">
-      <div class="icon"></div>
-    </div>
-  </div>
-
-</div>
-
-<audio id="audio" src="https://stm.igng.com.br:7018/stream"></audio>
-
-<script>
-
-let audio = document.getElementById("audio");
-let btn = document.getElementById("btn");
-let ultimaMusica = "";
-let ultimoTempo = 0;
-
-// botão
-audio.onplay = () => btn.classList.add("playing");
-audio.onpause = () => btn.classList.remove("playing");
-
-function togglePlay() {
-  audio.paused ? audio.play() : audio.pause();
-}
-
-// relógio
-function atualizarRelogio() {
-  const agora = new Date();
-  document.getElementById("hora").innerText =
-    agora.toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo' });
-  document.getElementById("data").innerText =
-    agora.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
-}
-setInterval(atualizarRelogio, 1000);
-atualizarRelogio();
-
-// separar música
-function separarMusica(texto) {
-  if (!texto) return { artista: "Desconhecido", musica: "Sem dados" };
-
-  let partes = texto.split(" - ");
-  return partes.length >= 2
-    ? { artista: partes[0], musica: partes.slice(1).join(" - ") }
-    : { artista: "AO VIVO", musica: texto };
-}
-
-// música com limite 486px
-function atualizarTextoMusica(texto) {
-  const el = document.getElementById("musicaTexto");
-
-  el.classList.remove("rolando");
-  el.style.animation = "";
-  el.innerText = texto;
-
-  setTimeout(() => {
-    const limite = 486;
-
-    if (el.scrollWidth > limite) {
-      const distancia = el.scrollWidth - limite;
-      el.style.animation = `rolarTexto ${distancia / 30}s linear infinite alternate`;
-      el.classList.add("rolando");
-    }
-  }, 200);
-}
-
-// APIs
-const API_JSON = "https://api.codetabs.com/v1/proxy?quest=https://igng.com.br/api-json/VG5wQmVFOUJQVDA9KzM=";
-const API_XML  = "https://api.codetabs.com/v1/proxy?quest=https://igng.com.br/api/NzAxOCsx";
-
-// JSON
-function carregarJSON() {
-  fetch(API_JSON)
-    .then(r => r.json())
-    .then(data => {
-      if (!data || !data.musica_atual) throw "erro";
-      processar(data);
-    })
-    .catch(() => carregarXML());
-}
-
-// XML fallback
-function carregarXML() {
-  fetch(API_XML)
-    .then(r => r.text())
-    .then(str => {
-      let xml = new DOMParser().parseFromString(str, "text/xml");
-
-      let data = {
-        titulo: xml.getElementsByTagName("titulo")[0]?.textContent,
-        musica_atual: xml.getElementsByTagName("musica_atual")[0]?.textContent,
-        ouvintes_conectados: xml.getElementsByTagName("ouvintes_conectados")[0]?.textContent,
-        capa_musica: xml.getElementsByTagName("capa_musica")[0]?.textContent
-      };
-
-      processar(data);
-    });
-}
-
-// atualizar player
-function processar(data) {
-  if (!data.musica_atual || data.musica_atual === ultimaMusica) return;
-
-  ultimaMusica = data.musica_atual;
-
-  let info = separarMusica(data.musica_atual);
-
-  document.getElementById("radio").innerText = data.titulo || "Rádio";
-  document.getElementById("artista").innerText = info.artista;
-  atualizarTextoMusica(info.musica);
-  document.getElementById("ouvintes").innerText = "👥 " + (data.ouvintes_conectados || 0);
-
-  let live = document.getElementById("liveStatus");
-  live.innerHTML = data.musica_atual.includes(" - ") ? "" : '<div class="live">● AO VIVO</div>';
-
-  if (data.capa_musica && data.capa_musica.includes("http")) {
-    document.getElementById("capa").style.backgroundImage = `url(${data.capa_musica})`;
-    document.getElementById("bg").style.backgroundImage = `url(${data.capa_musica})`;
-  }
-}
-
-// tempo real
-setInterval(carregarJSON, 3000);
-carregarJSON();
-
-// partículas
-document.addEventListener("mousemove", function(e) {
-  const agora = Date.now();
-  if (agora - ultimoTempo < 40) return;
-  ultimoTempo = agora;
-
-  const bolinha = document.createElement("div");
-  bolinha.className = "particle";
-
-  bolinha.style.left = e.clientX + "px";
-  bolinha.style.top = e.clientY + "px";
-
-  let size = Math.random() * 4 + 4;
-  bolinha.style.width = size + "px";
-  bolinha.style.height = size + "px";
-
-  document.body.appendChild(bolinha);
-
-  setTimeout(() => bolinha.remove(), 1000);
-});
-
-</script>
-
-</body>
+  </body>
 </html>
