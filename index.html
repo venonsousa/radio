@@ -1,45 +1,53 @@
-[package]
-name = "tikv-jemalloc-ctl"
-version = "0.6.1"
-authors = [
-    "Steven Fackler <sfackler@gmail.com>",
-    "Gonzalo Brito Gadeschi <gonzalobg88@gmail.com>",
-    "The TiKV Project Developers",
-]
-license = "MIT/Apache-2.0"
-readme = "README.md"
-categories = ["memory-management", "api-bindings", "development-tools" ]
-keywords = ["allocator", "jemalloc"]
-repository = "https://github.com/tikv/jemallocator"
-homepage = "https://github.com/tikv/jemallocator"
-documentation = "https://docs.rs/tikv-jemalloc-ctl"
-description = """
-A safe wrapper over jemalloc's control and introspection APIs
-"""
-edition = "2018"
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Jason Wong by jason</title>
 
-[badges]
-travis-ci = { repository = "tikv/jemallocator" }
-codecov = { repository = "tikv/jemallocator" }
-is-it-maintained-issue-resolution = { repository = "tikv/jemallocator" }
-is-it-maintained-open-issues = { repository = "tikv/jemallocator" }
-maintenance = { status = "actively-developed" }
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Jason Wong</h1>
+        <p>Modestly More Than Meets the Eye</p>
 
-[dependencies]
-tikv-jemalloc-sys = { path = "../jemalloc-sys", version = "0.6.1" }
-libc = { version = "0.2", default-features = false }
-paste = "1"
 
-[dev-dependencies]
-tikv-jemallocator = { path = "../jemallocator", version = "0.6.1" }
+        <p class="view"><a href="https://github.com/jason">View My GitHub Profile</a></p>
 
-[features]
-default = []
-stats = ["tikv-jemalloc-sys/stats"]
-profiling = ["tikv-jemalloc-sys/profiling"]
-use_std = [ "libc/use_std" ]
-disable_initial_exec_tls = ["tikv-jemalloc-sys/disable_initial_exec_tls"]
+      </header>
+      <section>
+        <h3>What's this?</h3>
 
-[package.metadata.docs.rs]
-rustdoc-args = [ "--cfg", "jemallocator_docs" ]
-features = ["stats", "profiling", "use_std"]
+<p>This is a quick first stab at my personal GitHub page.  If you'd like to know me better, <a href="http://www.jasonwong.org">http://www.jasonwong.org</a></p>
+
+<p>I'm the founder of <a href="http://www.i5labs.com">i5labs</a>, one of the first Rails consultancies.  We've developed applications for Global 2000 companies, gaming companies, and government. My experience creates a solution that works for you.</p>
+
+<h3>Languages &amp; Frameworks</h3>
+
+<p>Ruby, Rails, JavaScript, Jquery, RSpec, HTML, (S)CSS</p>
+      </section>
+      <footer>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-38975019-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+  </body>
+</html>
